@@ -95,7 +95,7 @@ function badges(t,e){
   if((t.photos||[]).length)h+='<span class="bd" title="Photos">'+ic('image')+t.photos.length+'</span>';
   if((t.files||[]).length)h+='<span class="bd" title="Fichiers">'+ic('clip')+t.files.length+'</span>';
   if((t.log||[]).length)h+='<span class="bd" title="Commentaires">'+ic('msg')+t.log.length+'</span>';
-  if(t.who)h+='<span class="bd who" title="Assigné à '+esc(t.who)+'">'+esc(t.who)+'</span>';
+  h+=whoChips(whoList(t),2);
   return h?'<div class="bds">'+h+'</div>':'';
 }
 function chkBtn(t,e){
@@ -138,7 +138,7 @@ function selH(id,change,did,opts,val,cls,extra){
 function taskRow(t,by,opt){
   opt=opt||{};
   var e=by[t.projectId]||null, done=isDone(t,e);
-  var h='<li class="trow'+(done?' isdone':'')+(S.task===t.id?' sel':'')+'" data-card data-id="'+esc(t.id)+'">'+chkBtn(t,e)
+  var h='<li class="trow'+(done?' isdone':'')+(S.task===t.id?' sel':'')+'" data-card data-id="'+esc(t.id)+'"'+(opt.drag&&S.canEdit?' draggable="true" data-drag="'+opt.drag+'"':'')+'>'+chkBtn(t,e)
     +'<button class="tt'+(done?' struck':'')+'" data-act="open" data-id="'+esc(t.id)+'">'+esc(t.title)+'</button>';
   if(opt.proj&&e)h+='<span class="pchip" style="--c:'+hue(e.p)+'"><span class="picon">'+picon(e.p)+'</span><span class="nm">'+esc(e.p.name)+'</span></span>';
   h+=badges(t,e);

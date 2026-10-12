@@ -221,12 +221,15 @@ function vInbox(by){
   var d=dashData(by), popts={'':T('Ranger dans…')};
   rwProjects(by).forEach(function(p){popts[p.id]=p.name;});
   var h='<header class="phd"><h1>Bazar</h1><p class="lead">Tout ce que tu notes en vrac, à ranger plus tard dans un projet. Visible par toi seul.</p></header>';
-  h+='<div class="qadd"><label class="sr" for="ibx">Ajouter rapidement</label>'+ic('plus')+'<input id="ibx" data-draft data-add="inbox" placeholder="Ajouter rapidement… ex. « Envoyer le devis demain priorité haute »" autocomplete="off"></div>';
-  if(open.length){
-    h+='<ul class="tlist panel">'+open.map(function(t){
-      return taskRow(t,by,{extra:function(x){return '<span class="row-acts">'+selH('file-'+esc(x.id),'file',esc(x.id),popts,'','in sm',' aria-label="Ranger dans un projet"')+'<button class="ib sm dng" data-act="del-task" data-id="'+esc(x.id)+'" aria-label="Supprimer">'+ic('trash')+'</button></span>';}});
+  h+=folderBar(open);
+  var fc=folderById(folderCur()), shown=folderFilter(open);
+  h+='<div class="qadd"><label class="sr" for="ibx">Ajouter rapidement</label>'+ic('plus')+'<input id="ibx" data-draft data-add="inbox" placeholder="'+(fc?tf('Ajouter dans « {0} »…',esc(fc.name)):nt(T('Ajouter rapidement… ex. « Envoyer le devis demain priorité haute »')))+'" autocomplete="off"></div>';
+  if(shown.length){
+    h+='<ul class="tlist panel">'+shown.map(function(t){
+      return taskRow(t,by,{drag:'bz',extra:function(x){return '<span class="row-acts">'+folderSelect(x)+selH('file-'+esc(x.id),'file',esc(x.id),popts,'','in sm',' aria-label="Ranger dans un projet"')+'<button class="ib sm dng" data-act="del-task" data-id="'+esc(x.id)+'" aria-label="Supprimer">'+ic('trash')+'</button></span>';}});
     }).join('')+'</ul>';
-  }else h+=empty('box','Bazar vide','Écris une tâche ci-dessus sans choisir de projet. Tu la rangeras plus tard.');
+  }else if(open.length)h+=empty('folder','Rien dans ce dossier','Ajoute une tâche ci-dessus, ou glisse une tâche du Bazar sur le nom du dossier.');
+  else h+=empty('box','Bazar vide','Écris une tâche ci-dessus sans choisir de projet. Tu la rangeras plus tard.');
   var rem=d.late.concat(d.tod).filter(function(t){return t.projectId;});
   if(rem.length)h+='<section class="sect"><h2>Rappels <span class="pillc">'+rem.length+'</span></h2><div class="panel pad-s">'+rem.slice(0,10).map(function(t){return mini(t,by);}).join('')+'</div></section>';
   if(done.length)h+='<section class="sect"><h2>Traitées <span class="cnt">'+done.length+'</span><span class="grow"></span><button class="btn quiet sm" data-act="inbox-clear">Vider</button></h2><ul class="tlist panel">'+done.slice(0,20).map(function(t){return taskRow(t,by);}).join('')+'</ul></section>';
@@ -436,7 +439,7 @@ function vTable(e){
     else if(k==='due')r=(a.due||'9999')<(b.due||'9999')?-1:(a.due||'9999')>(b.due||'9999')?1:0;
     else if(k==='check')r=ratio(a)-ratio(b);
     else if(k==='prio')r=prioOf(b)-prioOf(a);
-    else if(k==='who')r=(a.who||'￿').localeCompare(b.who||'￿','fr');
+    else if(k==='who')r=(whoList(a)[0]||'￿').localeCompare(whoList(b)[0]||'￿','fr');
     else r=ci[a._col]-ci[b._col]||cmpPos(a,b);
     return r*d;
   });
@@ -450,7 +453,7 @@ function vTable(e){
     h+='<tr tabindex="0" data-act="open" data-id="'+esc(t.id)+'" data-card><td class="tt"><span class="'+(isDone(t,e)?'struck':'')+'">'+esc(t.title)+'</span></td>'
       +'<td><span class="pill'+(isDone(t,e)?' ok':'')+'">'+esc(colName(e,t._col))+'</span></td>'
       +'<td>'+(pr?'<span class="bd p'+pr+'">'+PRIO[pr]+'</span>':'')+'</td>'
-      +'<td>'+(t.who?'<span class="bd who">'+esc(t.who)+'</span>':'')+'</td>'
+      +'<td><span class="lrow">'+whoChips(whoList(t),2)+'</span></td>'
       +'<td><div class="lrow sm">'+lb.map(function(l){return lchip(l);}).join('')+'</div></td>'
       +'<td>'+(t.due?'<span class="bd due'+(late?' late':'')+'">'+fmtDate(t.due)+'</span>':'')+'</td>'
       +'<td>'+(ck.length?'<span class="cnt">'+dn+'/'+ck.length+'</span>':'')+'</td></tr>';
@@ -501,7 +504,7 @@ function vProject(e,by){
   var open=(own||mgr)?S.det:true, cl=own?clientOf(p):null;
   h+='<div class="sumrow">'+chip(PST[st],PSTC[st])+'<span class="sum-prog">'+bar(e.pct,hue(p))+'<b>'+e.pct+' %</b><span class="cnt">'+e.done+'/'+e.total+'</span></span>'
     +(p.deadline?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(p.deadline)+'</span>':'')
-    +(own?(mbs.length?'<span class="bd shared">'+ic('users')+'Partagé · '+mbs.length+'</span>':'<span class="bd">'+ic('lock')+'Privé</span>'):'<span class="bd shared">'+ic('users')+(mgr?'Tu es chef de projet':e.rw?'Tu es éditeur':'Tu es lecteur')+'</span>')+(cl?'<span class="bd who">'+esc(cl.name)+'</span>':'')
+    +(own?(mbs.length?'<span class="bd shared">'+ic('users')+'Partagé · '+mbs.length+'</span>':'<span class="bd">'+ic('lock')+'Privé</span>'):'<span class="bd shared">'+ic('users')+(mgr?'Tu es chef de projet':e.rw?'Tu es éditeur':'Tu es lecteur')+'</span>')+(cl?'<span class="bd who">'+esc(cl.name)+'</span>':'')+(peopleOf(p).length?'<span class="bd ppl" title="'+esc(peopleOf(p).join(', '))+'">'+ic('user')+esc(peopleOf(p).slice(0,3).join(', '))+(peopleOf(p).length>3?' +'+(peopleOf(p).length-3):'')+'</span>':'')
     +(own?'<button class="btn sm" data-act="report" title="Préparer un message d’avancement pour ton client">'+ic('msg')+'Point client</button><button class="btn sm" data-act="share">'+ic('users')+'Partager</button><button class="btn sm" data-act="det" aria-expanded="'+(open?'true':'false')+'">'+ic('settings')+(open?'Masquer':'Détails')+'</button>':'')
     +(mgr?'<button class="btn sm" data-act="share">'+ic('users')+'Partager</button><button class="btn sm" data-act="det" aria-expanded="'+(open?'true':'false')+'">'+ic('settings')+(open?'Masquer':'Détails')+'</button>':'')+'</div>';
   if((own||mgr)&&open){
@@ -511,6 +514,7 @@ function vProject(e,by){
       +prop('Début','<input class="pv" type="date" id="pb-'+id+'" value="'+esc(p.start||'')+'" data-change="pstart" data-id="'+id+'">','pb-'+id)
       +prop('Échéance','<input class="pv" type="date" id="pe-'+id+'" value="'+esc(p.deadline||'')+'" data-change="pdead" data-id="'+id+'">','pe-'+id)
       +prop('Vue par défaut',selH('pv-'+id,'pdefview',id,L(dv),p.defView||'board'),'pv-'+id)
+      +prop('Responsables',whoEditor('p',id,peopleOf(p),p.id,'Qui pilote ce projet ?'),'mpp-'+id)
       +prop('Couleur','<span class="swatches" role="group" aria-label="Couleur du projet">'+[0,1,2,3,4,5].map(function(i){return '<button class="sw" style="--sc:var(--h'+i+')" data-act="color" data-id="'+i+'" aria-pressed="'+(((p.hue||0)%6)===i?'true':'false')+'" aria-label="'+COLORS[i]+'"></button>';}).join('')+'</span>')
       +'</div>';
     h+=shareBox(e,mbs,cl);

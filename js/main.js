@@ -13,8 +13,14 @@ function queueRender(){
 function autosize(){
   document.querySelectorAll('textarea.mtitle,textarea.desc').forEach(function(el){el.style.height='auto';if(el.scrollHeight)el.style.height=el.scrollHeight+'px';});
 }
+/* pendant un rafraîchissement, les champs remplacés envoient un « change » qui n'est pas une vraie validation :
+   S.painting permet de les reconnaître (voir js/extras.js et js/people.js) */
 function render(){
   if(S.auth!=='in'){renderGate();return;}
+  S.painting=true;
+  try{paint();}finally{S.painting=false;}
+}
+function paint(){
   var drafts={};
   document.querySelectorAll('[data-draft]').forEach(function(el){drafts[el.id]=el.value;});
   var a=document.activeElement, fid=a&&a.id, ss=null, se=null;
@@ -55,9 +61,7 @@ function render(){
     else if(v.indexOf('c:')===0)h+=vClient(S.clients.find(function(c){return 'c:'+c.id===v;}),by);
     else h+=vProject(by[v],by);
   }
-  S.painting=true;
   if(!keep)mainEl.innerHTML=tr(h);
-  S.painting=false;
   still(mainEl,[S.view,S.det,S.menu,S.iconPick,modeOf(by[S.view]?by[S.view].p:{})].join('|'));
   if(S.lastView!==S.view){
     S.lastView=S.view;
@@ -461,6 +465,7 @@ root.addEventListener('keydown',function(ev){
     var v=el.value.trim(); if(!v)return;
     el.value='';delete S.dirty[el.id];
     var kind=el.dataset.add;
+    if(folderEnter(kind,el,v))return;
     if(kind==='project')addProject(v,el.dataset.space||'_');
     else if(kind==='cproject')addProject(v,'_',{priv:true,clientId:el.dataset.client,tpl:'client'});
     else if(kind==='client')addClient(v);
@@ -469,6 +474,7 @@ root.addEventListener('keydown',function(ev){
     else if(kind==='inbox'){var q=parseQuick(v,S.projects);if(q.title)quickCreate(q);}
     else if(kind==='column'){var e=curE();if(e)addColumn(e,v);}
     else if(kind==='member'){var se=curE(), sr=document.getElementById('m-role');if(se)addMember(se.p.id,v,sr?sr.value:'viewer');render();}
+    else if(kind==='who'){whoAdd(el.dataset.k==='p'?'p':'t',el.dataset.id,v);S.focus=el.id;}
     else if(kind==='check'||kind==='cmt'){
       var mt=S.task?taskById(S.task):null;
       if(mt&&kind==='check')run(function(){return tdoc(mt.id).update({check:(mt.check||[]).concat([{id:rnd(),t:v,d:false}])});});

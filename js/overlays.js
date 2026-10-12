@@ -17,15 +17,15 @@ function renderPanel(by){
   h+='<div class="tp-props">';
   if(ed){
     if(e){var copt={}; e.cols.forEach(function(c){copt[c.id]=c.name;});h+=prop(ic('board')+'Colonne',selH('mc-'+id,'mcol',id,copt,t._col),'mc-'+id);}
-    else{var popts={'':T('Bazar (pas encore rangée)')}; rwProjects(by).forEach(function(x){popts[x.id]=x.name;});h+=prop(ic('folder')+'Projet',selH('mf-'+id,'file',id,popts,''),'mf-'+id);}
+    else{var popts={'':T('Bazar (pas encore rangée)')}; rwProjects(by).forEach(function(x){popts[x.id]=x.name;});h+=prop(ic('folder')+'Projet',selH('mf-'+id,'file',id,popts,''),'mf-'+id);h+=folderProp(t);}
     h+=prop(ic('flag')+'Priorité',selH('mp-'+id,'tprio',id,L(PRIO),pr),'mp-'+id);
-    h+=prop(ic('user')+'Assigné à','<input class="pv" id="mw-'+id+'" value="'+esc(t.who||'')+'" data-draft data-change="twho" data-id="'+id+'" placeholder="Personne" autocomplete="off">','mw-'+id);
+    h+=prop(ic('user')+'Assigné à',whoEditor('t',id,whoList(t),t.projectId,'Une ou plusieurs personnes'),'mw-'+id);
     h+=prop(ic('clock')+'Échéance','<input class="pv" type="date" id="md-'+id+'" value="'+esc(t.due||'')+'" data-change="tdue" data-id="'+id+'">','md-'+id);
     h+=repProp(t,true);
   }else{
     if(e)h+=prop(ic('board')+'Colonne','<span class="val"><span class="pill'+(done?' ok':'')+'">'+esc(colName(e,t._col))+'</span></span>');
     if(pr)h+=prop(ic('flag')+'Priorité','<span class="val"><span class="bd p'+pr+'">'+PRIO[pr]+'</span></span>');
-    if(t.who)h+=prop(ic('user')+'Assigné à','<span class="val"><span class="bd who">'+esc(t.who)+'</span></span>');
+    if(whoList(t).length)h+=prop(ic('user')+'Assigné à','<span class="val lrow">'+whoChips(whoList(t),WHO_MAX)+'</span>');
     if(t.due)h+=prop(ic('clock')+'Échéance','<span class="val">'+fmtDate(t.due)+'</span>');
     h+=repProp(t,false);
   }

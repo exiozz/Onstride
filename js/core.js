@@ -187,7 +187,7 @@ function bucket(t,today,wk){
   if(t.due<=wk)return 'week';
   return 'later';
 }
-function mine(t){var n=norm(myName());return !t.who||!n||norm(t.who)===n;}
+function mine(t){return mineWho(t);}   /* js/people.js : une carte peut avoir plusieurs personnes */
 function modeOf(p){var m=S.pmode[p.id]||p.defView||'board';return MODES.some(function(x){return x[0]===m;})?m:'board';}
 function validView(by){
   var v=S.view;
@@ -368,6 +368,9 @@ function addTask(pid,title,colId,extra){
   return run(function(){return S.db.collection(realm(pid)+'tasks').doc().set(doc);});
 }
 function addInbox(title,extra){
+  extra=Object.assign({},extra||{});
+  var fc=folderCur();   /* depuis un dossier du Bazar, la tâche y est rangée directement */
+  if(S.view==='inbox'&&fc&&fc!=='_none'&&!('folder' in extra))extra.folder=fc;
   var doc=newTaskDoc(Object.assign({title:title,done:false},extra||{}));
   return run(function(){return S.db.collection(PRIV+'tasks').doc().set(doc);});
 }
