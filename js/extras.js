@@ -79,7 +79,7 @@ function vWb(e){
         var done=isDone(t,e), late=t.due&&!done&&t.due<todayStr(), tid=esc(t.id), pr=prioOf(t), wait=blk[n.id]||[];
         h+='<header class="wb-h">'+(ed?chkBtn(t,e):'<span class="chk sm'+(done?' on':'')+'">'+CHECK+'</span>')
           +(ed?'<label class="sr" for="wbk-'+id+'">Titre de la carte</label><input class="wb-t'+(done?' struck':'')+'" id="wbk-'+id+'" value="'+esc(t.title)+'" data-draft data-change="wbk" data-id="'+tid+'" autocomplete="off">':'<span class="wb-t'+(done?' struck':'')+'">'+esc(t.title)+'</span>')+'</header>';
-        h+='<div class="wb-b"><div class="bds"><span class="pill'+(done?' ok':'')+'">'+esc(colName(e,t._col))+'</span>'+(pr?'<span class="bd p'+pr+'">'+PRIO[pr]+'</span>':'')+(t.due?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(t.due)+'</span>':'')+(t.who?'<span class="bd who">'+esc(t.who)+'</span>':'')+'</div>';
+        h+='<div class="wb-b"><div class="bds"><span class="pill'+(done?' ok':'')+'">'+esc(colName(e,t._col))+'</span>'+(pr?'<span class="bd p'+pr+'">'+PRIO[pr]+'</span>':'')+(t.due?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(t.due)+'</span>':'')+whoChips(whoList(t),2)+'</div>';
         if(wait.length&&!done)h+='<p class="wb-wait">'+ic('lock')+'<span>'+tf(wait.length>1?'En attente de « {0} » et {1} de plus':'En attente de « {0} »',esc(wait[0].title),wait.length-1)+'</span></p>';
         h+='<button class="linkbtn" data-act="open" data-id="'+tid+'">Ouvrir la carte</button></div>';
       }
@@ -414,6 +414,8 @@ function extraClick(act,id,b){
   if(moreClick(act,id,b))return true;
   if(mailClick(act,id))return true;
   if(skinClick(act,id))return true;
+  if(peopleClick(act,id,b))return true;
+  if(folderClick(act,id))return true;
   if(keysClick(act,id))return true;
   if(act.indexOf('wb-')===0){
     var e=curE(); if(!e)return true;
@@ -464,6 +466,8 @@ function extraClick(act,id,b){
   return false;
 }
 function extraChange(k,id,v,el){
+  if(folderChange(k,id,v,el))return true;
+  if(k==='whoadd'){if(S.painting||!el.isConnected){if(el.id)S.dirty[el.id]=true;return true;}if(v.trim()){whoAdd(el.dataset.k==='p'?'p':'t',id,v);el.value='';delete S.dirty[el.id];}return true;}
   if(k==='keypick'){KEYS.pick=v;return true;}
   if(moreChange(k,id,v))return true;
   var e=curE();
@@ -482,6 +486,7 @@ function extraChange(k,id,v,el){
 function extraKey(ev){
   var key=ev.key;
   if(mailKey(ev))return true;
+  if(key==='Escape'&&(FOLD.add||FOLD.ren)){FOLD.add=false;FOLD.ren=null;render();return true;}
   if(key==='Escape'&&(S.report||S.zen)){closeOverlays();render();return true;}
   if(!document.getElementById('wb')||typing(ev.target)||S.task||S.pal||S.qa)return false;
   var e=curE(); if(!e)return false;

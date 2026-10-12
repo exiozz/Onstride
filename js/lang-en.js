@@ -456,3 +456,15 @@ I18N.add('en',{
 'Plus de fichiers avec {0}':'More files with {0}','Plus de photos avec {0}':'More photos with {0}','{0} projets actifs, {1} photos et {2} fichiers par tâche.':'{0} active projects, {1} photos and {2} files per task.',
 'Voir ce que ce projet te rapporte vraiment par heure':'See what this project really earns you per hour'
 });
+
+/* --- plusieurs personnes, dossiers du Bazar --- */
+I18N.add('en',{
+'Retirer {0}':'Remove {0}','+ Ajouter':'+ Add','Ajouter une personne':'Add a person','Ajouter un responsable':'Add a lead','Une ou plusieurs personnes':'One or more people',
+'Responsables':'Leads','Qui pilote ce projet ?':'Who runs this project?','{0} personnes au maximum par carte.':'{0} people at most per card.',
+'Dossiers':'Folders','Tout':'All','Nom du dossier':'Folder name','Sans dossier':'No folder','Nom du nouveau dossier':'New folder name','Dossier':'Folder','Couleur du dossier':'Folder colour','Renommer':'Rename',
+'Les tâches restent dans le Bazar, sans dossier.':'The tasks stay in the Bazaar, without a folder.','Supprimer le dossier':'Delete folder',
+'Ajouter dans « {0} »…':'Add to “{0}”…','Ajouter rapidement… ex. « Envoyer le devis demain priorité haute »':'Quick add… e.g. “Send the quote tomorrow high priority”',
+'Rien dans ce dossier':'Nothing in this folder','Ajoute une tâche ci-dessus, ou glisse une tâche du Bazar sur le nom du dossier.':'Add a task above, or drag a Bazaar task onto the folder name.',
+'Rangée dans « {q} ».':'Filed into “{q}”.','Sortie de son dossier.':'Taken out of its folder.','Sortie de son dossier':'Taken out of its folder',
+'Dossier « {0} » supprimé : ses {1} tâches restent dans le Bazar.':'Folder “{0}” deleted: its {1} tasks stay in the Bazaar.','Dossier « {0} » supprimé.':'Folder “{0}” deleted.'
+},[[/^Plus assignée à (.+)$/,'No longer assigned to $1'],[/^Rangée dans le dossier « (.+) »$/,'Filed into folder “$1”']]);

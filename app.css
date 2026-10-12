@@ -1106,3 +1106,27 @@ button.pbadge .ic{width:11px;height:11px}
   .ptable th:first-child{width:40%}
   .ptable .pt-g th{padding:8px 10px}
 }
+
+/* ---------- plusieurs personnes ---------- */
+.whos{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-width:0;padding:3px 0}
+.wchip{display:inline-flex;align-items:center;gap:3px;padding-right:3px;max-width:180px}
+.wchip button{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;color:inherit;opacity:.65;flex:none}
+.wchip button:hover{opacity:1;background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.wchip button .ic{width:10px;height:10px}
+.who-in{flex:1;min-width:110px;width:auto}
+.bd.who.more{font-family:var(--f-mono)}
+.bd.ppl{background:var(--well);color:var(--ink-2);font-family:var(--f-body);font-weight:500;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+/* ---------- dossiers du Bazar ---------- */
+.fbar-f{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.fold{display:inline-flex;align-items:center;gap:7px;padding:calc(6px*var(--u)) 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:500;font-size:.9em;color:var(--ink-2);transition:all .12s}
+.fold .ic{width:15px;height:15px;color:var(--fc,var(--muted))}
+.fold .cnt{font-size:11px}
+.fold:hover{border-color:var(--line-2);background:var(--well)}
+.fold.on{border-color:var(--fc,var(--ink));background:color-mix(in srgb,var(--fc,var(--ink)) 10%,var(--bg));color:var(--ink);font-weight:600}
+.fold.add{border-style:dashed;color:var(--muted)}
+.fold.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--bg));transform:scale(1.04)}
+.fold.edit{padding:3px 6px 3px 12px}
+.fold-in{border:0;background:none;outline:none;font:inherit;color:var(--ink);width:150px;padding:4px 0}
+.fold-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:-8px}
+.trow[draggable="true"]{cursor:grab}
+.trow.dragging{opacity:.4}

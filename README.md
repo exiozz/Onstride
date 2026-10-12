@@ -20,5 +20,7 @@ Le guide de mise en ligne est dans [LISEZ-MOI.md](LISEZ-MOI.md).
 - **Thèmes à effets** (Premium et Pro) : Sakura, Aurore, Océan. Couleurs et fond du thème, petit effet à chaque clic ; en Pro, le fond s’anime.
 - **Chef de projet** : un admin du site invité sur un projet peut y modifier le contenu et gérer les invités, sans voir les infos privées du propriétaire.
 - **Raccourcis clavier modifiables** : dans Réglages, on change chaque raccourci, on en supprime et on en crée (aller à une page, ouvrir un projet précis, lancer le mode Focus…). Ils suivent le compte d’un appareil à l’autre.
+- **Plusieurs personnes par carte** et des **responsables par projet** : on ajoute les noms un par un (Entrée ou virgule), avec des suggestions.
+- **Dossiers dans le Bazar** : pour ranger les tâches en vrac avant de les mettre dans un projet (menu ou glisser-déposer).
 
 Mail et le rôle de chef de projet passent par la base de données ; le reste vit dans `js/extras.js`, `js/more.js` et `js/skins.js`. Mail (`js/mail.js`) utilise la table `messages` : il faut relancer `supabase/schema.sql` une fois, voir [LISEZ-MOI.md](LISEZ-MOI.md).
