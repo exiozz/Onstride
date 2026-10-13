@@ -87,6 +87,18 @@ Ces limites sont imposées par le serveur (fonction `my_mail_quota` dans `schema
 
 Aucun vrai e-mail n'est envoyé : la personne est prévenue par une notification dans l'appli (et sur son écran si elle a activé les notifications de bureau dans Réglages), tant que le site est ouvert chez elle.
 
+## Devis et factures
+
+Menu **Devis** (ou `G` puis `D`). **À faire une fois** : dans Supabase > **SQL Editor**, recolle tout le fichier `supabase/schema.sql` et clique **Run**. Il crée la table des devis et ne supprime rien. Tant que ce n'est pas fait, la page Devis affiche un message qui te le rappelle ; le reste du site fonctionne normalement.
+
+Puis remplis **Réglages > Entreprise** : nom, adresse, SIRET, IBAN, TVA (ou « franchise en base » pour une micro-entreprise), délais par défaut. Ces infos sont imprimées sur chaque document.
+
+- **Devis** : numéroté dès sa création (D-2026-001). « PDF » ouvre le document à imprimer ou enregistrer en PDF ; « Envoyer » prépare l'e-mail au client (joins le PDF). Accepté, il donne une **facture** (complète, d'acompte, puis de solde qui déduit les acomptes) ou un **projet** avec une carte par ligne, son client et son montant.
+- **Facture** : elle reçoit son numéro quand tu la **valides** (F-2026-001), pour que les numéros se suivent sans trou. Ensuite elle ne se modifie plus : en cas d'erreur, annule-la et duplique-la. « Marquer payée » ajoute le montant à « Encaissé » du projet relié.
+- Seul le propriétaire voit ses devis et factures, comme ses clients et ses montants.
+
+Les mentions par défaut (pénalités de retard, indemnité de 40 €, art. 293 B du CGI) sont un point de départ : vérifie-les avec ton comptable.
+
 ## Formules : ce que chacune permet
 
 | | Gratuit | Premium | Pro |
@@ -95,8 +107,9 @@ Aucun vrai e-mail n'est envoyé : la personne est prévenue par une notification
 | Photos par tâche | 2 | 6 | 15 |
 | Fichiers par tâche | 2 (5 Mo) | 8 (20 Mo) | 20 (50 Mo) |
 | Mail | lecture | 15 messages par heure | 150 messages par heure |
+| Devis et factures | 3 par mois | illimités | illimités |
 | Cartes récurrentes, dupliquer un projet, point client, relances, créer des raccourcis, thèmes à effets | non | oui | oui |
-| Fond animé, taux horaire réel, export tableur | non | non | oui |
+| Fond animé, taux horaire réel, export tableur (tâches, livre des recettes) | non | non | oui |
 
 Tout est réglé dans `js/plans.js` (objet `PLANS`). Le nombre de projets et de messages est aussi imposé par le serveur : si tu changes ces deux chiffres, change-les aussi dans `supabase/schema.sql` (fonctions `my_project_quota` et `my_mail_quota`) et relance le fichier.
 

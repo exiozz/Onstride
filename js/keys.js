@@ -6,7 +6,7 @@
 
 var KEY_DEFAULTS=[
   {a:'pal',k:'mod+k'},{a:'pal',k:'/'},{a:'sb',k:'mod+b'},{a:'qa',k:'n'},{a:'newproj',k:'shift+p'},
-  {a:'go:home',k:'g h'},{a:'go:mail',k:'g m'},{a:'go:inbox',k:'g b'},{a:'go:tasks',k:'g t'},{a:'go:calendar',k:'g c'},{a:'go:projects',k:'g p'},{a:'go:settings',k:'g s'}
+  {a:'go:home',k:'g h'},{a:'go:mail',k:'g m'},{a:'go:inbox',k:'g b'},{a:'go:tasks',k:'g t'},{a:'go:calendar',k:'g c'},{a:'go:quotes',k:'g d'},{a:'go:projects',k:'g p'},{a:'go:settings',k:'g s'}
 ];
 /* touches que le navigateur garde pour lui : inutile de les proposer */
 var KEY_TAKEN=['mod+w','mod+t','mod+n','mod+r','mod+q','mod+l','mod+shift+t','mod+shift+n','mod+tab','alt+f4','f5','f11','f12'];
@@ -22,6 +22,8 @@ var KEY_ACTS={
   'newproj':{n:'Nouveau projet',g:'Créer',e:1,run:function(){go('projects');S.pf='active';S.focus='npp';}},
   'newclient':{n:'Nouveau client',g:'Créer',e:1,run:function(){go('clients');S.focus='ncl';}},
   'mailnew':{n:'Nouveau message',g:'Créer',e:1,run:function(){mailClick('mail-new','');}},
+  'newquote':{n:'Nouveau devis',g:'Créer',e:1,run:function(){qNewFor('quote');}},
+  'newinvoice':{n:'Nouvelle facture',g:'Créer',e:1,run:function(){qNewFor('invoice');}},
   'zen':{n:'Ouvrir le mode Focus',g:'Créer',e:1,run:function(){moreClick('zen','');}},
   'timerstop':{n:'Arrêter le chrono',g:'Créer',e:1,run:function(){if(!timerOn())return false;timerStop();}},
   'go:home':{n:'Aller à l’accueil',g:'Aller à',run:function(){keyGo('home');}},
@@ -30,6 +32,7 @@ var KEY_ACTS={
   'go:tasks':{n:'Aller à Mes tâches',g:'Aller à',e:1,run:function(){keyGo('tasks');}},
   'go:calendar':{n:'Aller au calendrier',g:'Aller à',run:function(){keyGo('calendar');}},
   'go:clients':{n:'Aller aux clients',g:'Aller à',e:1,run:function(){keyGo('clients');}},
+  'go:quotes':{n:'Aller aux devis et factures',g:'Aller à',e:1,run:function(){keyGo('quotes');}},
   'go:projects':{n:'Aller aux projets',g:'Aller à',run:function(){keyGo('projects');}},
   'go:plans':{n:'Aller aux formules',g:'Aller à',run:function(){keyGo('plans');}},
   'go:settings':{n:'Aller aux réglages',g:'Aller à',run:function(){keyGo('settings');}}

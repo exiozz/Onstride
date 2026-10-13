@@ -417,6 +417,7 @@ function extraClick(act,id,b){
   if(peopleClick(act,id,b))return true;
   if(folderClick(act,id))return true;
   if(keysClick(act,id))return true;
+  if(quoteClick(act,id,b))return true;
   if(act.indexOf('wb-')===0){
     var e=curE(); if(!e)return true;
     if(act==='wb-zoom'){
@@ -467,6 +468,7 @@ function extraClick(act,id,b){
 }
 function extraChange(k,id,v,el){
   if(folderChange(k,id,v,el))return true;
+  if(quoteChange(k,id,v,el))return true;
   if(k==='whoadd'){if(S.painting||!el.isConnected){if(el.id)S.dirty[el.id]=true;return true;}if(v.trim()){whoAdd(el.dataset.k==='p'?'p':'t',id,v);el.value='';delete S.dirty[el.id];}return true;}
   if(k==='keypick'){KEYS.pick=v;return true;}
   if(moreChange(k,id,v))return true;

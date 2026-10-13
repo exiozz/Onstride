@@ -7,8 +7,11 @@ var Cloud=(function(){
   var RECOVERY=/[?&]reset=1/.test(location.search)||/type=recovery/.test(location.hash);
   var cfg=window.AVANCEE_CONFIG||{}, sb=null, me=null, cache={}, subs={}, timers={}, authCb=null, lastLoad=0, mailCb=null;
   /* table -> forme. key : colonne servant d'identifiant ; single : une ligne par personne ; plain : colonnes simples */
-  var T={spaces:{},projects:{},clients:{},tasks:{},meta:{key:'project_id'},settings:{key:'owner',single:true},members:{plain:true}};
+  var T={spaces:{},projects:{},clients:{},tasks:{},meta:{key:'project_id'},settings:{key:'owner',single:true},members:{plain:true},quotes:{opt:true}};
   var NAMES=Object.keys(T);
+  /* opt : table ajoutée après coup (devis). Tant que supabase/schema.sql n'a pas été relancé, elle manque :
+     l'appli démarre quand même, et la page concernée affiche comment l'activer. */
+  var missing={};
 
   function configured(){return !!(cfg.supabaseUrl&&cfg.supabaseKey&&window.supabase&&window.supabase.createClient);}
   function uuid(){
@@ -42,13 +45,18 @@ var Cloud=(function(){
   function load(){
     lastLoad=Date.now();
     return Promise.all(NAMES.map(function(t){
-      return fetchTable(t).catch(function(e){(subs[t]||[]).forEach(function(s){if(s.error)s.error(e);});throw e;});
+      return fetchTable(t).then(function(){delete missing[t];},function(e){
+        if(T[t].opt){missing[t]=e&&e.code==='no_schema'?'no_schema':'err';cache[t]=cache[t]||{};emit(t);return;}
+        (subs[t]||[]).forEach(function(s){if(s.error)s.error(e);});throw e;
+      });
     }));
   }
   function live(){
     try{
       var ch=sb.channel('avancee');
       NAMES.forEach(function(t){
+        /* une table facultative a son propre canal : si elle manque, les mises à jour en direct des autres continuent */
+        if(T[t].opt){try{sb.channel('avancee-'+t).on('postgres_changes',{event:'*',schema:'public',table:t},function(){later(t);}).subscribe();}catch(_){}return;}
         ch.on('postgres_changes',{event:'*',schema:'public',table:t},function(){
           later(t);
           if(t==='members'){later('projects');later('tasks');}   /* un partage change ce qu'on a le droit de voir */
@@ -152,6 +160,7 @@ var Cloud=(function(){
   }
   return {
     init:init, db:db, load:load,
+    missing:function(t){return missing[t]||'';},
     me:function(){return me;},
     providers:function(){return (cfg.providers||[]).slice();},
     emailLogin:function(){return cfg.email!==false;},

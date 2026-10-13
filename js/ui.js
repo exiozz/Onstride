@@ -55,6 +55,7 @@ var ICONS={
   repeat:'<path d="M4.5 9.200V8a3 3 0 0 1 3-3h7.500M12.500 2.500L15 5l-2.500 2.500M15.500 10.800V12a3 3 0 0 1-3 3H5M7.500 17.500L5 15l2.500-2.500"/>',
   play:'<path d="M6.5 4.300v11.400l9-5.700z" fill="currentColor"/>',
   stop:'<rect x="5.500" y="5.500" width="9" height="9" rx="1.600" fill="currentColor"/>',
+  receipt:'<path d="M5 2.800h10v14.400l-1.700-1.200-1.600 1.200-1.700-1.200-1.700 1.200-1.600-1.200L5 17.200z"/><path d="M7.500 6.500h5M7.500 9.500h5M7.500 12.500h3"/>',
   user:'<circle cx="10" cy="7" r="3.200"/><path d="M4 17c0-3.300 2.700-5.200 6-5.200s6 1.900 6 5.200"/>'
 };
 function ic(n,cls){return '<svg class="ic'+(cls?' '+cls:'')+'" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[n]||'')+'</svg>';}

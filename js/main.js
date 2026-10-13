@@ -33,7 +33,7 @@ function paint(){
   var ok=validView(by);
   if(S.pending&&ok&&S.view===S.pending)S.pending=null;
   var keep=!ok&&S.hold&&S.view===S.hold;
-  if(ready&&!ok&&S.view!==S.pending&&!keep){S.view=(S.view.indexOf('c:')===0&&S.canEdit)?'clients':'home';ok=true;}
+  if(ready&&!ok&&S.view!==S.pending&&!keep){S.view=(S.view.indexOf('c:')===0&&S.canEdit)?'clients':(S.view.indexOf('q:')===0&&S.canEdit)?'quotes':'home';ok=true;}
   if(S.task&&ready&&!S.hold&&!taskById(S.task))S.task=null;
   if(ready&&ok&&!S.pending){
     var want=by[S.view]?'#p='+S.view:'';
@@ -55,6 +55,8 @@ function paint(){
     else if(v==='calendar')h+=vCalendar(by);
     else if(v==='projects')h+=vProjects(by);
     else if(v==='clients')h+=vClients(by);
+    else if(v==='quotes')h+=vQuotes(by);
+    else if(v.indexOf('q:')===0)h+=vQuote(S.quotes.find(function(q){return 'q:'+q.id===v;}),by);
     else if(v==='settings')h+=vSettings(by);
     else if(v==='plans')h+=vPlans();
     else if(v==='admin')h+=vAdmin();
@@ -589,7 +591,7 @@ function startApp(){
   var next=deepLink();
   try{if(!next)next=sessionStorage.getItem('av.next');sessionStorage.removeItem('av.next');}catch(_){}
   if(next){S.view=next;S.pending=next;}
-  sub('spaces','s');sub('projects','p');sub('tasks','t');sub('clients','c');sub('meta','m');sub('settings','cfg');sub('members','mb');
+  sub('spaces','s');sub('projects','p');sub('tasks','t');sub('clients','c');sub('meta','m');sub('settings','cfg');sub('members','mb');sub('quotes','q');
   render();
   NOTIF.seen=null;NOTIF.members=null;notifStart();mailStart();
   Cloud.load().then(function(){

@@ -3,16 +3,17 @@
 
 /* ---------- navigation ---------- */
 function navDefs(){
-  if(S.canEdit)return [['home','home','Accueil'],['mail','inbox','Mail'],['inbox','box','Bazar'],['tasks','tasks','Mes tâches'],['calendar','calendar','Calendrier'],['clients','users','Clients'],['projects','grid','Projets']];
+  if(S.canEdit)return [['home','home','Accueil'],['mail','inbox','Mail'],['inbox','box','Bazar'],['tasks','tasks','Mes tâches'],['calendar','calendar','Calendrier'],['clients','users','Clients'],['quotes','receipt','Devis'],['projects','grid','Projets']];
   return [['home','home','Accueil'],['calendar','calendar','Calendrier'],['projects','grid','Projets']];
 }
 function navCount(v,by){
   if(v==='mail')return mailUnread();
+  if(v==='quotes')return S.quotes.filter(function(q){return qStatus(q)==='late';}).length;
   if(v==='inbox')return inboxTasks().filter(function(t){return !t.done;}).length;
   if(v==='tasks'){var td=todayStr();return liveTasks(by).filter(function(t){return mine(t)&&t.due&&t.due<=td&&!isDone(t,by[t.projectId]);}).length;}
   return 0;
 }
-function navOn(v){return S.view===v||(v==='clients'&&S.view.indexOf('c:')===0);}
+function navOn(v){return S.view===v||(v==='clients'&&S.view.indexOf('c:')===0)||(v==='quotes'&&S.view.indexOf('q:')===0);}
 function groups(){
   var gs=S.spaces.slice().sort(function(a,b){return (a.createdAt||0)-(b.createdAt||0);}).map(function(s){return {id:s.id,name:s.name,real:true,ps:[]};});
   var def={id:'_',name:T('Mes projets'),real:false,ps:[]};
@@ -75,11 +76,14 @@ function renderSide(by,ready){
 }
 function renderTop(by){
   var v=S.view, sub=false, crumb='';
-  var names={home:'Accueil',mail:'Mail',inbox:'Bazar',tasks:'Mes tâches',calendar:'Calendrier',clients:'Clients',projects:'Projets',settings:'Réglages',plans:'Formules',admin:'Admin'};
+  var names={home:'Accueil',mail:'Mail',inbox:'Bazar',tasks:'Mes tâches',calendar:'Calendrier',clients:'Clients',quotes:'Devis et factures',projects:'Projets',settings:'Réglages',plans:'Formules',admin:'Admin'};
   if(names[v])crumb='<span class="crumb-i">'+names[v]+'</span>';
   else if(v.indexOf('c:')===0){
     var c=S.clients.find(function(x){return 'c:'+x.id===v;}); sub='clients';
     crumb='<button class="crumb-i mut hide-s" data-act="view" data-id="clients">Clients</button><span class="sep hide-s">/</span><span class="crumb-i">'+esc(c?c.name:'')+'</span>';
+  }else if(v.indexOf('q:')===0){
+    var qq=qById(v.slice(2)); sub='quotes';
+    crumb='<button class="crumb-i mut hide-s" data-act="view" data-id="quotes">Devis et factures</button><span class="sep hide-s">/</span><span class="crumb-i">'+(qq&&qq.num?esc(qq.num):T('Brouillon'))+'</span>';
   }else if(by[v]){
     var p=by[v].p; sub='projects';
     crumb='<button class="crumb-i mut hide-s" data-act="view" data-id="projects">'+esc(spaceName(p))+'</button><span class="sep hide-s">/</span><span class="crumb-i"><span class="picon">'+picon(p)+'</span><span class="nm">'+esc(p.name)+'</span>'+(isShared(p)?ic('users','mut'):'')+'</span>';
@@ -153,6 +157,7 @@ function widgetBody(k,d,by){
     return rows+(rest>0?'<p class="wfoot">Reste à encaisser : <b>'+eur(rest)+'</b></p>':'');
   }
   if(k==='pay')return payWidget(by);
+  if(k==='quotes')return quotesWidget();
   if(k==='pace')return paceWidget(by);
   if(k==='notes')return '<label class="sr" for="qn">Notes rapides</label><textarea class="wnotes" id="qn" data-draft data-change="cfgnotes" placeholder="Une idée, un numéro, un pense-bête… Visible par toi seul.">'+esc(S.cfg.notes||'')+'</textarea>';
   return '';
@@ -374,10 +379,11 @@ function vClient(c,by){
   var id=esc(c.id), s=clientStats(c,by), st=CST[c.status]?c.status:'active';
   function f(key,label,type){var fid='cf-'+key+'-'+id;return prop(label,'<input class="pv" id="'+fid+'" type="'+(type||'text')+'" value="'+esc(c[key]||'')+'" data-draft data-change="cf" data-f="'+key+'" data-id="'+id+'" placeholder="Vide" autocomplete="off">',fid);}
   var h='<div class="phead"><label class="sr" for="cf-name-'+id+'">Nom du client</label><input class="h1in" id="cf-name-'+id+'" value="'+esc(c.name)+'" data-draft data-change="cf" data-f="name" data-id="'+id+'" autocomplete="off">';
-  h+='<div class="props">'+f('company','Société')+f('email','E-mail','email')+f('phone','Téléphone','tel')+prop('Statut',selH('cf-status-'+id,'cf',id,L(CST),st,'pv',' data-f="status"'),'cf-status-'+id)+'</div>'
+  h+='<div class="props">'+f('company','Société')+f('email','E-mail','email')+f('phone','Téléphone','tel')+f('address','Adresse')+f('siret','SIRET')+prop('Statut',selH('cf-status-'+id,'cf',id,L(CST),st,'pv',' data-f="status"'),'cf-status-'+id)+'</div>'
     +(validEmail(String(c.email||'').trim())?'<div class="row-btns"><button class="btn sm" data-act="mail-new" data-id="'+esc(String(c.email).trim().toLowerCase())+'">'+ic('inbox')+'Lui écrire par Mail</button></div>':'')+'</div>';
   h+='<div class="stats"><div class="stat"><span>Projets</span><b>'+s.ps.length+'</b></div><div class="stat"><span>Montant total</span><b>'+eur(s.amount)+'</b></div><div class="stat"><span>Encaissé</span><b>'+eur(s.paid)+'</b></div><div class="stat'+(s.rest>0?' bad':'')+'"><span>Reste à encaisser</span><b>'+eur(s.rest)+'</b></div></div>';
   h+='<section class="sect"><h2><label for="cf-notes-'+id+'">Notes</label></h2><textarea class="area" id="cf-notes-'+id+'" data-draft data-change="cf" data-f="notes" data-id="'+id+'" placeholder="Besoins, tarifs convenus, interlocuteurs, historique…">'+esc(c.notes||'')+'</textarea></section>';
+  h+=qForClient(c);
   h+='<section class="sect"><h2>Projets de ce client</h2>';
   h+='<div class="qadd"><label class="sr" for="ncp">Nouveau projet pour ce client</label>'+ic('plus')+'<input id="ncp" data-draft data-add="cproject" data-client="'+id+'" placeholder="Nouveau projet pour ce client" autocomplete="off"></div>';
   h+=s.ps.length?'<div class="cards">'+s.ps.map(function(p){return pcard(p,by);}).join('')+'</div>':'<p class="hint">Aucun projet relié. Crée-en un ci-dessus, ou choisis ce client dans les détails d’un projet.</p>';
@@ -527,7 +533,7 @@ function vProject(e,by){
       +prop('Encaissé (€)','<input class="pv" type="number" min="0" step="1" inputmode="decimal" id="pp-'+id+'" value="'+(m.paid!=null&&m.paid!==''?esc(m.paid):'')+'" data-draft data-change="ppaid" data-id="'+id+'" placeholder="0">','pp-'+id)
       +prop('Reste','<span class="val">'+eur(amount-paid)+'</span>')
       +timeProps(e,m)
-      +'</div><label class="sr" for="pno-'+id+'">Notes privées</label><textarea class="area sm" id="pno-'+id+'" data-draft data-change="pnotes" data-id="'+id+'" placeholder="Notes privées : tarif, conditions, contacts, tout ce qui ne se partage pas.">'+esc(m.pnotes||'')+'</textarea>'+payRow(e,m)+'</section>';
+      +'</div><label class="sr" for="pno-'+id+'">Notes privées</label><textarea class="area sm" id="pno-'+id+'" data-draft data-change="pnotes" data-id="'+id+'" placeholder="Notes privées : tarif, conditions, contacts, tout ce qui ne se partage pas.">'+esc(m.pnotes||'')+'</textarea>'+payRow(e,m)+qForProject(e)+'</section>';
     if(S.confirm==='p:'+p.id)h+='<div class="row-btns"><span class="cnt">Supprimer ce projet et ses '+pl(e.total,'carte','cartes')+' ?</span><button class="btn danger" data-act="del-project" data-id="'+id+'">Supprimer</button><button class="btn" data-act="cancel">Annuler</button></div>';
     else h+='<div class="row-btns"><button class="btn quiet sm" data-act="dup-project" data-id="'+id+'" title="Copie les colonnes, les labels, les cartes et le tableau blanc. Les cartes repartent de la première colonne.">'+ic('copy')+'Dupliquer le projet</button><button class="btn quiet sm" data-act="del-project" data-id="'+id+'">'+ic('trash')+'Supprimer le projet</button></div>';
     }
@@ -561,6 +567,7 @@ function vSettings(by){
   if(ed){
     var hidden=dashHidden();
     h+='<section class="panel scard"><h2>'+ic('grid')+'Tableau de bord</h2><p class="hint">Choisis les blocs affichés sur l’accueil. Pour les réorganiser, utilise « Personnaliser » sur l’accueil.</p><div class="chips">'+WORDER.map(function(k){return '<button class="fchip" data-act="w-toggle" data-id="'+k+'" aria-pressed="'+(hidden.indexOf(k)<0)+'">'+WIDGETS[k].t+'</button>';}).join('')+'</div></section>';
+    h+=bizCard();
     h+='<section class="panel scard"><h2>'+ic('users')+'Partage</h2><p class="hint">Chaque projet se partage séparément : ouvre un projet, puis « Partager ». Tu choisis pour chaque personne « Lecteur » ou « Éditeur ». Ton Bazar, tes messages, tes clients, tes montants et tes notes privées restent visibles par toi seul.</p></section>';
     h+='<section class="panel scard"><h2>'+ic('download')+'Données</h2><p class="hint">Télécharge une copie de tout ton espace (projets, tâches, clients) dans un fichier.</p><div class="row-btns"><button class="btn" data-act="export">'+ic('download')+'Exporter en JSON</button><button class="btn" data-act="export-csv">'+ic('table')+'Exporter en tableur (Excel)'+(plan().csv?'':' <span class="pbadge">Pro</span>')+'</button></div></section>';
   }
