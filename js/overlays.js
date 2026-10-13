@@ -136,6 +136,9 @@ function palItems(by){
     if(ed)S.clients.filter(function(c){return norm(c.name+' '+(c.company||'')+' '+(c.email||'')).indexOf(q)>=0;}).slice(0,5).forEach(function(c){
       out.push({g:'Clients',icon:'user',label:c.name,act:'view',id:'c:'+c.id,sub:c.company||''});
     });
+    if(ed)S.quotes.filter(function(x){return norm((x.num||'')+' '+(x.title||'')+' '+qClientName(x)).indexOf(q)>=0;}).slice(0,5).forEach(function(x){
+      out.push({g:'Devis et factures',icon:qKind(x)==='invoice'?'receipt':'file',label:(x.num||T('Brouillon'))+(x.title?' · '+x.title:''),act:'view',id:'q:'+x.id,sub:qClientName(x)});
+    });
     S.projects.filter(function(p){return p.doc&&norm(p.doc).indexOf(q)>=0;}).slice(0,3).forEach(function(p){
       out.push({g:'Notes',icon:'note',label:T('Notes de « '+p.name+' »'),act:'open-doc',id:p.id});
     });
@@ -148,6 +151,8 @@ function palItems(by){
     add('Actions','plus','Nouvelle tâche','qa','',{k:keyHint('qa'),kw:'creer ajouter tache carte'});
     add('Actions','folder','Nouveau projet','new-project','',{k:keyHint('newproj'),kw:'creer'});
     add('Actions','users','Nouveau client','new-client','',{kw:'creer'});
+    add('Actions','file','Nouveau devis','q-new','quote',{k:keyHint('newquote'),kw:'creer devis quote estimation proposition'});
+    add('Actions','receipt','Nouvelle facture','q-new','invoice',{kw:'creer facture invoice'});
   }
   var keys={home:'G H',inbox:'G I',tasks:'G T',calendar:'G C',projects:'G P'};
   navDefs().forEach(function(n){add('Aller à',n[1],n[2],'view',n[0],{k:keys[n[0]],kw:'ouvrir aller'});});
@@ -219,10 +224,10 @@ function renderOverlay(by){
       +'<footer><label class="sr" for="qap">Projet</label>'+selH('qap','qapid','',popts,S.qa.pid||'','in sm')+'<span class="grow"></span><button class="btn" data-act="ov-close">Annuler</button><button class="btn primary" data-act="qa-ok">Créer '+kbd('↵')+'</button></footer></div></div>';
   }else if(S.sheet){
     var items=[];
-    if(S.sheet==='plus')items=[['zen','','bolt','Focus : quoi faire maintenant'],['qa','','tasks','Nouvelle tâche'],['new-project','','folder','Nouveau projet'],['new-client','','users','Nouveau client']];
+    if(S.sheet==='plus')items=[['zen','','bolt','Focus : quoi faire maintenant'],['qa','','tasks','Nouvelle tâche'],['new-project','','folder','Nouveau projet'],['new-client','','users','Nouveau client'],['q-new','quote','file','Nouveau devis']];
     else{
       items=[['pal','','search','Rechercher']];
-      if(S.canEdit)items.push(['view','tasks','tasks','Mes tâches'],['view','calendar','calendar','Calendrier'],['view','clients','users','Clients']);
+      if(S.canEdit)items.push(['view','tasks','tasks','Mes tâches'],['view','calendar','calendar','Calendrier'],['view','clients','users','Clients'],['view','quotes','receipt','Devis et factures']);
       items.push(['view','plans','star','Formules']);
       if(S.admin)items.push(['view','admin','bolt','Admin']);
       items.push(['view','settings','settings','Réglages']);

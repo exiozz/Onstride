@@ -7,11 +7,11 @@ var MB=1024*1024;
 /* Ce que chaque formule permet. Les nombres de projets et de messages sont aussi imposés par le serveur
    (my_project_quota et my_mail_quota dans supabase/schema.sql) : si tu les changes ici, change-les là-bas. */
 var PLANS={
-  free:{n:'Gratuit',tag:'Pour essayer et pour les petits projets',projects:3,photos:2,files:2,size:5*MB,mail:0,
+  free:{n:'Gratuit',tag:'Pour essayer et pour les petits projets',projects:3,photos:2,files:2,size:5*MB,mail:0,quotes:3,
     accents:false,skins:false,skinAnim:false,repeat:false,dup:false,msgs:false,keys:false,rate:false,csv:false},
-  premium:{n:'Premium',tag:'Pour les indépendants qui ont des clients',month:4.99,year:49,projects:15,photos:6,files:8,size:20*MB,mail:15,
+  premium:{n:'Premium',tag:'Pour les indépendants qui ont des clients',month:4.99,year:49,projects:15,photos:6,files:8,size:20*MB,mail:15,quotes:Infinity,
     accents:true,skins:true,skinAnim:false,repeat:true,dup:true,msgs:true,keys:true,rate:false,csv:false},
-  pro:{n:'Pro',tag:'Pour piloter toute ton activité',month:9.99,year:99,projects:Infinity,photos:15,files:20,size:50*MB,mail:150,
+  pro:{n:'Pro',tag:'Pour piloter toute ton activité',month:9.99,year:99,projects:Infinity,photos:15,files:20,size:50*MB,mail:150,quotes:Infinity,
     accents:true,skins:true,skinAnim:true,repeat:true,dup:true,msgs:true,keys:true,rate:true,csv:true}
 };
 var PLAN_ORDER=['free','premium','pro'];
@@ -67,6 +67,7 @@ function upsellText(why){
     repeat:'Les cartes récurrentes (chaque jour, semaine ou mois) font partie des formules Premium et Pro.',
     msgs:'Le point client et les relances de paiement prêts à envoyer font partie des formules Premium et Pro.',
     keys:'Créer tes propres raccourcis clavier fait partie des formules Premium et Pro. Tu peux déjà modifier ceux qui existent.',
+    quotes:tf('La formule Gratuite permet {0} devis ou factures par mois. Premium et Pro n’ont pas de limite.',PLANS.free.quotes),
     rate:'Le taux horaire réel (ce que chaque projet te rapporte vraiment par heure) fait partie de la formule Pro.'
   };
   return T2[why]||T2.projects;
@@ -90,6 +91,7 @@ function featList(k){
     yes('Kanban, tableau blanc, calendrier, partage');
     yes('Chrono, mode Focus, clients');
     yes('Mail : lire les messages reçus');
+    yes(tf('{0} devis ou factures par mois',p.quotes));
     no('Écrire dans Mail');no('Cartes récurrentes');no('Thèmes à effets');
   }else if(k==='premium'){
     yes(tf('{0} projets actifs',p.projects));
@@ -97,6 +99,7 @@ function featList(k){
     yes(tf('Mail : écrire, {0} messages par heure',p.mail));
     yes('Cartes récurrentes et duplication de projet');
     yes('Point client et relances de paiement');
+    yes('Devis et factures illimités');
     yes('Thèmes à effets et couleurs en plus');
     yes('Tes propres raccourcis clavier');
     no('Fond animé, taux horaire réel, export');
@@ -106,7 +109,7 @@ function featList(k){
     yes(tf('Mail : écrire, {0} messages par heure',p.mail));
     yes('Thèmes à effets avec fond animé');
     yes('Taux horaire réel de chaque projet');
-    yes('Export des tâches en tableur (Excel)');
+    yes('Export des tâches et du livre des recettes en tableur');
     yes('Aide prioritaire');
   }
   return L;
@@ -126,6 +129,7 @@ function planTable(){
     ['Tableau blanc à blocs reliés',true,true,true],
     ['Partage avec lecteurs et éditeurs',true,true,true],
     ['Clients, montants, à encaisser',true,true,true],
+    ['Devis et factures (PDF)',unmark(tf('{0} par mois',f.quotes)),T('Illimités'),T('Illimités')],
     ['Gagner du temps'],
     ['Chrono sur les cartes et mode Focus',true,true,true],
     ['Cartes récurrentes',f.repeat,a.repeat,b.repeat],
@@ -133,7 +137,7 @@ function planTable(){
     ['Point client et relances de paiement',f.msgs,a.msgs,b.msgs],
     ['Créer ses raccourcis clavier',f.keys,a.keys,b.keys],
     ['Taux horaire réel de chaque projet',f.rate,a.rate,b.rate],
-    ['Export des tâches en tableur',f.csv,a.csv,b.csv],
+    ['Export des tâches et du livre des recettes en tableur',f.csv,a.csv,b.csv],
     ['Échanger et personnaliser'],
     ['Messages dans Mail',m(f),m(a),m(b)],
     ['Couleurs d’accent en plus',f.accents,a.accents,b.accents],

@@ -3,7 +3,7 @@
 -- Peut être relancé sans risque : il ne supprime aucune donnée.
 --
 -- Qui voit quoi :
---   * chaque personne a son propre espace (espaces, projets, Bazar, clients, montants, réglages) ;
+--   * chaque personne a son propre espace (espaces, projets, Bazar, clients, montants, devis et factures, réglages) ;
 --   * les messages (Mail) ne sont visibles que par la personne qui écrit et celle qui reçoit ;
 --     tout le monde peut les lire, écrire est réservé aux formules Premium et Pro ;
 --   * un projet peut être partagé à une adresse e-mail en « editor » (éditeur) ou « viewer » (lecteur) ;
@@ -341,12 +341,32 @@ create policy messages_update on public.messages for update to authenticated
   using (from_id = auth.uid() or (public.my_email() <> '' and to_email = public.my_email()))
   with check (from_id = auth.uid() or (public.my_email() <> '' and to_email = public.my_email()));
 
+-- ---------- devis et factures ----------
+-- Visibles et modifiables uniquement par leur propriétaire, comme les clients et les montants.
+create table if not exists public.quotes (
+  id uuid primary key default gen_random_uuid(),
+  owner uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+create index if not exists quotes_owner_idx on public.quotes(owner);
+drop trigger if exists touch on public.quotes;
+create trigger touch before update on public.quotes for each row execute function public.touch_updated_at();
+alter table public.quotes enable row level security;
+revoke all on public.quotes from anon;
+grant select, insert, delete on public.quotes to authenticated;
+revoke update on public.quotes from authenticated;
+grant update (data) on public.quotes to authenticated;
+drop policy if exists own_all on public.quotes;
+create policy own_all on public.quotes for all to authenticated
+  using (owner = auth.uid()) with check (owner = auth.uid());
+
 -- mises à jour en direct (ignoré si déjà activé)
 do $$
 declare t text;
 begin
   if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
-    foreach t in array array['spaces','projects','tasks','clients','meta','settings','members','messages'] loop
+    foreach t in array array['spaces','projects','tasks','clients','meta','settings','members','messages','quotes'] loop
       begin
         execute format('alter publication supabase_realtime add table public.%I', t);
       exception when duplicate_object then null;

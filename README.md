@@ -7,6 +7,7 @@ Le guide de mise en ligne est dans [LISEZ-MOI.md](LISEZ-MOI.md).
 
 ## Les plus
 
+- **Devis et factures** : des devis numérotés (D-2026-001) avec lignes, unités, TVA par ligne ou franchise de TVA, remise et acompte. Un clic pour l’imprimer ou l’enregistrer en PDF, préparer l’e-mail au client ou le relancer. Accepté, le devis devient une facture (complète, d’acompte ou de solde) ou un projet avec une carte par ligne, relié au client et au montant. Les factures sont numérotées à la validation (sans trou) et ne se modifient plus ensuite ; payées, elles s’ajoutent à « Encaissé » du projet. Un bloc d’accueil liste ce qui attend une action, et le livre des recettes s’exporte en tableur (Pro). Tes infos d’entreprise (SIRET, adresse, IBAN…) se règlent dans Réglages.
 - **Tableau blanc** : dans chaque projet, un espace libre où poser des blocs, les déplacer et les relier entre eux. Les cartes à faire du Kanban s’y affichent toutes seules : un lien entre deux cartes indique laquelle doit être finie d’abord, et la suivante affiche « En attente de… ».
 - **Chrono et rentabilité** : un chrono sur chaque carte de tes projets. Le temps reste privé ; avec le montant du projet, il donne ton taux horaire réel.
 - **Point client** : un message d’avancement écrit à partir de tes cartes (terminé, en cours, prochaines étapes), à copier ou à ouvrir dans ta messagerie.
@@ -23,4 +24,4 @@ Le guide de mise en ligne est dans [LISEZ-MOI.md](LISEZ-MOI.md).
 - **Plusieurs personnes par carte** et des **responsables par projet** : on ajoute les noms un par un (Entrée ou virgule), avec des suggestions.
 - **Dossiers dans le Bazar** : pour ranger les tâches en vrac avant de les mettre dans un projet (menu ou glisser-déposer).
 
-Mail et le rôle de chef de projet passent par la base de données ; le reste vit dans `js/extras.js`, `js/more.js` et `js/skins.js`. Mail (`js/mail.js`) utilise la table `messages` : il faut relancer `supabase/schema.sql` une fois, voir [LISEZ-MOI.md](LISEZ-MOI.md).
+Mail et le rôle de chef de projet passent par la base de données ; le reste vit dans `js/extras.js`, `js/more.js` et `js/skins.js`. Mail (`js/mail.js`) utilise la table `messages` et les devis (`js/quotes.js`) la table `quotes` : il faut relancer `supabase/schema.sql` une fois, voir [LISEZ-MOI.md](LISEZ-MOI.md).

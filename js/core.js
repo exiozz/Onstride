@@ -35,9 +35,9 @@ var ACCENTS={
 };
 var WIDGETS={
   today:{t:'Aujourd’hui'},week:{t:'Cette semaine'},pay:{t:'À encaisser',owner:true},pace:{t:'Mon rythme'},projects:{t:'Projets récents'},progress:{t:'Progression'},
-  activity:{t:'Activité récente'},clients:{t:'Clients',owner:true},notes:{t:'Notes rapides',owner:true}
+  activity:{t:'Activité récente'},clients:{t:'Clients',owner:true},quotes:{t:'Devis et factures',owner:true},notes:{t:'Notes rapides',owner:true}
 };
-var WORDER=['today','week','projects','progress','activity','clients','pay','pace','notes'];
+var WORDER=['today','week','projects','quotes','progress','activity','clients','pay','pace','notes'];
 
 /* préférences locales (par appareil) */
 var LS={
@@ -48,9 +48,9 @@ var P={theme:LS.get('theme','system'),accent:LS.get('accent','cobalt'),density:L
 if(!ACCENTS[P.accent])P.accent='cobalt';
 
 var S={db:null,dl:null,owner:false,unsure:false,preview:false,canEdit:false,me:null,auth:'boot',roles:{},gate:{sending:false,sent:'',err:'',mode:LS.get('lgmode','pw')==='link'?'link':'pw',signup:false,forgot:false,show:false,kind:''},
-  loaded:{s:false,p:false,t:false,c:false,m:false,cfg:false,mb:false},
-  raw:{s:[],p:[],t:[],c:[],m:[],cfg:[],mb:[]},
-  spaces:[],projects:[],tasks:[],clients:[],meta:{},cfg:{},
+  loaded:{s:false,p:false,t:false,c:false,m:false,cfg:false,mb:false,q:false},
+  raw:{s:[],p:[],t:[],c:[],m:[],cfg:[],mb:[],q:[]},
+  spaces:[],projects:[],tasks:[],clients:[],meta:{},cfg:{},quotes:[],
   view:LS.get('view','home'),lastView:null,pmode:LS.get('pmode',{}),confirm:null,error:'',pending:null,hold:null,
   q:'',fl:null,sort:{k:'pos',d:1},cal:null,calProj:'',calMode:'month',
   task:null,taskFresh:false,menu:null,lblMgr:false,nlc:0,dirty:{},
@@ -145,6 +145,7 @@ function rebuild(){
   S.clients=S.raw.c.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'','fr');});
   S.meta={};S.raw.m.forEach(function(m){S.meta[m.id]=m;});
   S.cfg=S.raw.cfg.find(function(c){return c.id==='main';})||{};
+  S.quotes=S.raw.q;
   S.roles={};
   if(S.me)S.raw.mb.forEach(function(m){if(m.email===S.me.email)S.roles[m.projectId]=m.role;});
 }
@@ -193,7 +194,8 @@ function validView(by){
   var v=S.view;
   if(v==='home'||v==='projects'||v==='calendar'||v==='settings'||v==='plans')return true;
   if(v==='admin')return !!S.admin;
-  if(v==='inbox'||v==='mail'||v==='tasks'||v==='clients')return S.canEdit;
+  if(v==='inbox'||v==='mail'||v==='tasks'||v==='clients'||v==='quotes')return S.canEdit;
+  if(v.indexOf('q:')===0)return S.canEdit&&S.quotes.some(function(q){return 'q:'+q.id===v;});
   if(v.indexOf('c:')===0)return S.canEdit&&S.clients.some(function(c){return 'c:'+c.id===v;});
   return !!by[v];
 }
@@ -472,7 +474,7 @@ function setPrivate(e,priv){
   }).then(release,release);
 }
 function exportData(){
-  var data={app:'On Stride',exportedAt:new Date().toISOString(),spaces:S.spaces,projects:S.projects.map(clean_keep),tasks:S.tasks.map(clean_keep),clients:S.clients,meta:S.raw.m,settings:S.cfg};
+  var data={app:'On Stride',exportedAt:new Date().toISOString(),spaces:S.spaces,projects:S.projects.map(clean_keep),tasks:S.tasks.map(clean_keep),clients:S.clients,meta:S.raw.m,quotes:S.quotes,settings:S.cfg};
   try{
     var url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
     var a=document.createElement('a');a.href=url;a.download='onstride-'+todayStr()+'.json';document.body.appendChild(a);a.click();

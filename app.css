@@ -1130,3 +1130,58 @@ button.pbadge .ic{width:11px;height:11px}
 .fold-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:-8px}
 .trow[draggable="true"]{cursor:grab}
 .trow.dragging{opacity:.4}
+
+/* ---------- devis et factures ---------- */
+.stat small{font-weight:500}
+.stat.bad small{color:var(--danger)}
+td.mono{font-family:var(--f-mono);white-space:nowrap}
+td.num.bad,.cnt.bad{color:var(--danger)}
+.qtbl{min-width:640px}
+.qbar{padding-bottom:10px}
+.qbar .chips{flex:1}
+.mini-t small{font-weight:400}
+.sect>h2.row{flex-wrap:wrap}
+.sect>h2.row .btn{font-family:var(--f-body)}
+.qhead .ptitle .lchip{flex:none}
+.qacts{padding-top:4px}
+.qchk{display:inline-flex;align-items:center;gap:8px;padding:5px 7px;font-size:.93em;cursor:pointer}
+.qchk input{width:16px;height:16px;accent-color:var(--accent)}
+.qlines{--qcols:minmax(0,1fr) 72px 104px 112px 86px 112px 84px;display:flex;flex-direction:column;padding:6px 8px}
+.qlines.novat{--qcols:minmax(0,1fr) 72px 104px 120px 120px 84px}
+.ql-h,.ql{display:grid;grid-template-columns:var(--qcols);gap:6px;align-items:center}
+.ql-h{font:600 11px var(--f-body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:6px 6px 8px;border-bottom:1px solid var(--line)}
+.ql-h span:nth-child(n+2):not(:last-child){text-align:right}
+.ql{padding:4px 0;border-bottom:1px solid var(--line)}
+.ql:last-of-type{border-bottom:0}
+.ql .pv{border-color:transparent}
+.ql .pv:hover:not(:disabled){background:var(--well)}
+.ql .pv:focus{border-color:var(--accent);background:var(--bg);outline:none}
+.ql .pv:disabled{color:var(--ink);opacity:1;-webkit-text-fill-color:var(--ink)}
+.ql .num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ql select.pv{text-align:right}
+.ql-tot{text-align:right;font:600 .93em var(--f-mono);font-variant-numeric:tabular-nums;padding-right:4px;white-space:nowrap}
+.ql-acts{display:flex;justify-content:flex-end;gap:2px}
+.ql-add{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 4px}
+.qtot{align-self:flex-end;width:min(340px,100%);padding:12px 16px;display:flex;flex-direction:column;gap:4px}
+.qtot div{display:flex;justify-content:space-between;gap:16px;font-variant-numeric:tabular-nums}
+.qtot div span:last-child{font-family:var(--f-mono)}
+.qtot .big{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;font:700 1.15em var(--f-display)}
+.qtot .big span:last-child{font-family:var(--f-display)}
+.qtexts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.qproj{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed var(--line-2)}
+#biz{scroll-margin-top:80px}
+#biz .srow .area{max-width:340px}
+#biz .srow input[type="color"]{width:56px;height:34px;padding:2px;flex:none}
+@media (max-width:899px){
+  .ql-h{display:none}
+  .ql,.qlines.novat .ql{grid-template-columns:repeat(6,minmax(0,1fr));padding:10px 0;row-gap:4px}
+  .ql .ql-t{grid-column:1/-1;font-weight:600}
+  .ql>input[data-f="q"]{grid-column:span 1}
+  .ql>select[data-f="unit"]{grid-column:span 2}
+  .ql>input[data-f="pu"]{grid-column:span 3}
+  .ql>select[data-f="tva"]{grid-column:span 2}
+  .ql-tot{grid-column:span 3;text-align:left;padding-left:7px}
+  .qlines.novat .ql-tot{grid-column:span 4}
+  .ql-acts{grid-column:span 1}
+  .qlines.novat .ql-acts{grid-column:span 2}
+}
