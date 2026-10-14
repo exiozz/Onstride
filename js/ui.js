@@ -91,6 +91,7 @@ function badges(t,e){
   if(t.due)h+='<span class="bd due'+(late?' late':done?' ok':'')+'">'+ic('clock')+fmtDate(t.due)+'</span>';
   var ck=t.check||[];
   if(ck.length){var d=ck.filter(function(i){return i.d;}).length;h+='<span class="bd'+(d===ck.length?' ok':'')+'" title="Checklist">'+ic('checklist')+d+'/'+ck.length+'</span>';}
+  var tc=taskClient(t); if(tc)h+='<span class="bd who" title="Client">'+ic('users')+esc(tc.name)+'</span>';
   if(t.rep)h+='<span class="bd" title="Carte récurrente">'+ic('repeat')+'</span>';
   if(t.notes)h+='<span class="bd" title="Description">'+ic('lines')+'</span>';
   if((t.photos||[]).length)h+='<span class="bd" title="Photos">'+ic('image')+t.photos.length+'</span>';

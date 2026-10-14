@@ -468,6 +468,7 @@ function extraClick(act,id,b){
   return false;
 }
 function extraChange(k,id,v,el){
+  if(clientTaskChange(k,id,v))return true;
   if(folderChange(k,id,v,el))return true;
   if(quoteChange(k,id,v,el))return true;
   if(k==='whoadd'){if(S.painting||!el.isConnected){if(el.id)S.dirty[el.id]=true;return true;}if(v.trim()){whoAdd(el.dataset.k==='p'?'p':'t',id,v);el.value='';delete S.dirty[el.id];}return true;}

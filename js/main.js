@@ -472,6 +472,7 @@ root.addEventListener('keydown',function(ev){
     if(kind==='project')addProject(v,el.dataset.space||'_');
     else if(kind==='cproject')addProject(v,'_',{priv:true,clientId:el.dataset.client,tpl:'client'});
     else if(kind==='client')addClient(v);
+    else if(kind==='ctask'){if(S.clients.some(function(c){return c.id===el.dataset.client;}))addInbox(v,{clientId:el.dataset.client});S.focus=el.id;}
     else if(kind==='space')addSpace(v);
     else if(kind==='task')addTask(el.dataset.pid,v,el.dataset.col);
     else if(kind==='inbox'){var q=parseQuick(v,S.projects);if(q.title)quickCreate(q);}
