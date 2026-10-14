@@ -333,8 +333,9 @@ root.addEventListener('click',function(ev){
   if(act==='photo-add'){if(!canW(me))return;var pin=document.getElementById('photo-in');if(pin){pin.dataset.task=mt.id;pin.value='';pin.click();}return;}
   if(act==='photo-del'){if(canW(me))removePhoto(mt,item);return;}
   if(act==='ck-toggle'){
-    var arr=(mt.check||[]).map(function(i){return i.id===item?{id:i.id,t:i.t,d:!i.d}:i;}), patch={check:arr};
-    if(arr.length&&arr.every(function(i){return i.d;}))patch.act=actOf(mt,'Checklist terminée');
+    var arr=(mt.check||[]).map(function(i){return i.id===item?Object.assign({},i,{d:!i.d}):i;}), patch={check:arr};
+    var hit=arr.filter(function(i){return i.id===item;})[0], grp=arr.filter(function(i){return hit&&(i.k||'')===(hit.k||'');});
+    if(hit&&hit.d&&grp.every(function(i){return i.d;}))patch.act=actOf(mt,hit.k&&CKREQ[hit.k]?CKREQ[hit.k].done:'Checklist terminée');
     run(function(){return tdoc(mt.id).update(patch);});return;
   }
   if(act==='ck-del'){run(function(){return tdoc(mt.id).update({check:(mt.check||[]).filter(function(i){return i.id!==item;})});});return;}
@@ -416,7 +417,7 @@ root.addEventListener('change',function(ev){
   else if(k==='ckt'){
     var mt=S.task?taskById(S.task):null; if(!mt)return; v=v.trim();
     var item=el.dataset.item;
-    var arr=v?(mt.check||[]).map(function(i){return i.id===item?{id:i.id,t:v,d:i.d}:i;}):(mt.check||[]).filter(function(i){return i.id!==item;});
+    var arr=v?(mt.check||[]).map(function(i){return i.id===item?Object.assign({},i,{t:v}):i;}):(mt.check||[]).filter(function(i){return i.id!==item;});
     run(function(){return tdoc(mt.id).update({check:arr});});
   }
 });
@@ -479,7 +480,8 @@ root.addEventListener('keydown',function(ev){
     else if(kind==='who'){whoAdd(el.dataset.k==='p'?'p':'t',el.dataset.id,v);S.focus=el.id;}
     else if(kind==='check'||kind==='cmt'){
       var mt=S.task?taskById(S.task):null;
-      if(mt&&kind==='check')run(function(){return tdoc(mt.id).update({check:(mt.check||[]).concat([{id:rnd(),t:v,d:false}])});});
+      var ck={id:rnd(),t:v,d:false}; if(el.dataset.k&&CKREQ[el.dataset.k]){ck.k=el.dataset.k;S.focus=el.id;}
+      if(mt&&kind==='check')run(function(){return tdoc(mt.id).update({check:(mt.check||[]).concat([ck])});});
       if(mt&&kind==='cmt')run(function(){return tdoc(mt.id).update({log:(mt.log||[]).concat([{id:rnd(),t:v,at:Date.now(),uid:S.me&&S.me.id}]),act:actOf(mt,'Commentaire ajouté')});});
     }
     return;

@@ -2,6 +2,23 @@
 'use strict';
 
 /* ---------- panneau de tâche ---------- */
+/* catégories des demandes du client (éléments de checklist marqués k) */
+var CKREQ={
+  add:{n:'À rajouter',ic:'plus',ph:'Ce que le client veut ajouter, puis Entrée',done:'Tout est rajouté'},
+  mod:{n:'À modifier',ic:'repeat',ph:'Ce que le client veut changer, puis Entrée',done:'Tout est modifié'},
+  del:{n:'À supprimer',ic:'trash',ph:'Ce que le client veut retirer, puis Entrée',done:'Tout est supprimé'}
+};
+var CKREQ_ORDER=['add','mod','del'];
+function ckListH(items,ed){
+  return '<ul class="ck">'+items.map(function(i){
+    var iid=esc(i.id);
+    if(!ed)return '<li class="cki"><span class="chk sm'+(i.d?' on':'')+'">'+CHECK+'</span><span class="'+(i.d?'struck':'')+'">'+esc(i.t)+'</span></li>';
+    return '<li class="cki"><button class="chk sm'+(i.d?' on':'')+'" data-act="ck-toggle" data-item="'+iid+'" aria-pressed="'+(i.d?'true':'false')+'" aria-label="'+(i.d?'Décocher':'Cocher')+'">'+CHECK+'</button>'
+      +'<input class="ckt'+(i.d?' struck':'')+'" id="ck-'+iid+'" data-draft data-change="ckt" data-item="'+iid+'" value="'+esc(i.t)+'" aria-label="Élément de checklist" autocomplete="off">'
+      +'<button class="ib xs dng" data-act="ck-del" data-item="'+iid+'" aria-label="Supprimer l’élément">'+ic('x')+'</button></li>';
+  }).join('')+'</ul>';
+}
+
 function renderPanel(by){
   var el=document.getElementById('panel');
   var t=S.task?taskById(S.task):null;
@@ -50,6 +67,21 @@ function renderPanel(by){
   h+=timerHtml(t,e);
   /* description */
   h+='<section class="tp-s"><h4>Description</h4>'+(ed?'<label class="sr" for="mn-'+id+'">Description</label><textarea class="area" id="mn-'+id+'" data-draft data-change="tdesc" data-id="'+id+'" placeholder="Détails, liens, idées…">'+esc(t.notes||'')+'</textarea>':(t.notes?'<p class="rd">'+esc(t.notes)+'</p>':'<span class="mut">Pas de description.</span>'))+'</section>';
+  /* demandes du client : à rajouter / à modifier / à supprimer */
+  var allck=t.check||[], rq=allck.filter(function(i){return CKREQ[i.k];});
+  if(ed||rq.length){
+    var rd=rq.filter(function(i){return i.d;}).length;
+    h+='<section class="tp-s rq"><h4>Demandes du client'+(rq.length?'<span class="cnt">'+rd+'/'+rq.length+'</span>':'')+'</h4>';
+    if(rq.length)h+=bar(rq.length?Math.round(rd/rq.length*100):0,'var(--done)');
+    CKREQ_ORDER.forEach(function(k){
+      var g=allck.filter(function(i){return i.k===k;}), gd=g.filter(function(i){return i.d;}).length, c=CKREQ[k];
+      if(!ed&&!g.length)return;
+      h+='<div class="rq-g rq-'+k+'"><h5>'+ic(c.ic)+c.n+(g.length?'<span class="cnt">'+gd+'/'+g.length+'</span>':'')+'</h5>'+ckListH(g,ed);
+      if(ed)h+='<label class="sr" for="cka-'+k+'">'+c.n+'</label><input class="in sm" id="cka-'+k+'" data-draft data-add="check" data-k="'+k+'" placeholder="'+c.ph+'" autocomplete="off">';
+      h+='</div>';
+    });
+    h+='</section>';
+  }
   /* fichiers */
   var fls=t.files||[], fup=S.fupl[t.id]||[];
   if(ed||fls.length){
@@ -83,17 +115,11 @@ function renderPanel(by){
     h+='</div></section>';
   }
   /* checklist */
-  var ck=t.check||[], nd=ck.filter(function(i){return i.d;}).length, pc=ck.length?Math.round(nd/ck.length*100):0;
+  var ck=(t.check||[]).filter(function(i){return !CKREQ[i.k];}), nd=ck.filter(function(i){return i.d;}).length, pc=ck.length?Math.round(nd/ck.length*100):0;
   if(ed||ck.length){
     h+='<section class="tp-s"><h4>Checklist'+(ck.length?'<span class="cnt">'+nd+'/'+ck.length+'</span>':'')+'</h4>';
     if(ck.length)h+=bar(pc,'var(--done)');
-    h+='<ul class="ck">'+ck.map(function(i){
-      var iid=esc(i.id);
-      if(!ed)return '<li class="cki"><span class="chk sm'+(i.d?' on':'')+'">'+CHECK+'</span><span class="'+(i.d?'struck':'')+'">'+esc(i.t)+'</span></li>';
-      return '<li class="cki"><button class="chk sm'+(i.d?' on':'')+'" data-act="ck-toggle" data-item="'+iid+'" aria-pressed="'+(i.d?'true':'false')+'" aria-label="'+(i.d?'Décocher':'Cocher')+'">'+CHECK+'</button>'
-        +'<input class="ckt'+(i.d?' struck':'')+'" id="ck-'+iid+'" data-draft data-change="ckt" data-item="'+iid+'" value="'+esc(i.t)+'" aria-label="Élément de checklist" autocomplete="off">'
-        +'<button class="ib xs dng" data-act="ck-del" data-item="'+iid+'" aria-label="Supprimer l’élément">'+ic('x')+'</button></li>';
-    }).join('')+'</ul>';
+    h+=ckListH(ck,ed);
     if(ed)h+='<label class="sr" for="cka">Nouvel élément</label><input class="in sm" id="cka" data-draft data-add="check" placeholder="Ajouter un élément, puis Entrée" autocomplete="off">';
     h+='</section>';
   }
