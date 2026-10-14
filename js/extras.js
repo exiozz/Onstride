@@ -411,6 +411,7 @@ function reportHtml(by){
    Branchements : clics, saisie, clavier, après chaque rendu
    ===================================================================== */
 function extraClick(act,id,b){
+  if(pasteClick(act,id,b))return true;
   if(moreClick(act,id,b))return true;
   if(mailClick(act,id))return true;
   if(skinClick(act,id))return true;
@@ -467,6 +468,7 @@ function extraClick(act,id,b){
   return false;
 }
 function extraChange(k,id,v,el){
+  if(clientTaskChange(k,id,v))return true;
   if(folderChange(k,id,v,el))return true;
   if(quoteChange(k,id,v,el))return true;
   if(k==='whoadd'){if(S.painting||!el.isConnected){if(el.id)S.dirty[el.id]=true;return true;}if(v.trim()){whoAdd(el.dataset.k==='p'?'p':'t',id,v);el.value='';delete S.dirty[el.id];}return true;}
@@ -489,7 +491,7 @@ function extraKey(ev){
   var key=ev.key;
   if(mailKey(ev))return true;
   if(key==='Escape'&&(FOLD.add||FOLD.ren)){FOLD.add=false;FOLD.ren=null;render();return true;}
-  if(key==='Escape'&&(S.report||S.zen)){closeOverlays();render();return true;}
+  if(key==='Escape'&&(S.paste||S.report||S.zen)){closeOverlays();render();return true;}
   if(!document.getElementById('wb')||typing(ev.target)||S.task||S.pal||S.qa)return false;
   var e=curE(); if(!e)return false;
   if((key==='Delete'||key==='Backspace')&&WB.sel&&canW(e)){ev.preventDefault();wbRemoveSel(e);render();return true;}

@@ -384,6 +384,7 @@ function vClient(c,by){
   h+='<div class="stats"><div class="stat"><span>Projets</span><b>'+s.ps.length+'</b></div><div class="stat"><span>Montant total</span><b>'+eur(s.amount)+'</b></div><div class="stat"><span>Encaissé</span><b>'+eur(s.paid)+'</b></div><div class="stat'+(s.rest>0?' bad':'')+'"><span>Reste à encaisser</span><b>'+eur(s.rest)+'</b></div></div>';
   h+='<section class="sect"><h2><label for="cf-notes-'+id+'">Notes</label></h2><textarea class="area" id="cf-notes-'+id+'" data-draft data-change="cf" data-f="notes" data-id="'+id+'" placeholder="Besoins, tarifs convenus, interlocuteurs, historique…">'+esc(c.notes||'')+'</textarea></section>';
   h+=qForClient(c);
+  h+=clientTasksHtml(c,by);
   h+='<section class="sect"><h2>Projets de ce client</h2>';
   h+='<div class="qadd"><label class="sr" for="ncp">Nouveau projet pour ce client</label>'+ic('plus')+'<input id="ncp" data-draft data-add="cproject" data-client="'+id+'" placeholder="Nouveau projet pour ce client" autocomplete="off"></div>';
   h+=s.ps.length?'<div class="cards">'+s.ps.map(function(p){return pcard(p,by);}).join('')+'</div>':'<p class="hint">Aucun projet relié. Crée-en un ci-dessus, ou choisis ce client dans les détails d’un projet.</p>';
@@ -511,6 +512,7 @@ function vProject(e,by){
   h+='<div class="sumrow">'+chip(PST[st],PSTC[st])+'<span class="sum-prog">'+bar(e.pct,hue(p))+'<b>'+e.pct+' %</b><span class="cnt">'+e.done+'/'+e.total+'</span></span>'
     +(p.deadline?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(p.deadline)+'</span>':'')
     +(own?(mbs.length?'<span class="bd shared">'+ic('users')+'Partagé · '+mbs.length+'</span>':'<span class="bd">'+ic('lock')+'Privé</span>'):'<span class="bd shared">'+ic('users')+(mgr?'Tu es chef de projet':e.rw?'Tu es éditeur':'Tu es lecteur')+'</span>')+(cl?'<span class="bd who">'+esc(cl.name)+'</span>':'')+(peopleOf(p).length?'<span class="bd ppl" title="'+esc(peopleOf(p).join(', '))+'">'+ic('user')+esc(peopleOf(p).slice(0,3).join(', '))+(peopleOf(p).length>3?' +'+(peopleOf(p).length-3):'')+'</span>':'')
+    +(ed?'<button class="btn sm" data-act="paste-open" data-id="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Coller un message client</button>':'')
     +(own?'<button class="btn sm" data-act="report" title="Préparer un message d’avancement pour ton client">'+ic('msg')+'Point client</button><button class="btn sm" data-act="share">'+ic('users')+'Partager</button><button class="btn sm" data-act="det" aria-expanded="'+(open?'true':'false')+'">'+ic('settings')+(open?'Masquer':'Détails')+'</button>':'')
     +(mgr?'<button class="btn sm" data-act="share">'+ic('users')+'Partager</button><button class="btn sm" data-act="det" aria-expanded="'+(open?'true':'false')+'">'+ic('settings')+(open?'Masquer':'Détails')+'</button>':'')+'</div>';
   if((own||mgr)&&open){

@@ -83,7 +83,7 @@ function keyHint(a){
 function keyTip(label,a){var h=keyHint(a);return nt(unmark(T(label))+(h?' ('+h+')':''));}
 
 /* ---------- exécution ---------- */
-function keyBusy(){return !!(S.photo||S.pal||S.qa||S.sheet||S.ctx||S.upsell||S.report||S.zen);}
+function keyBusy(){return !!(S.paste||S.photo||S.pal||S.qa||S.sheet||S.ctx||S.upsell||S.report||S.zen);}
 function keyRun(b){
   var x=keyAct(b.a); if(!x||(x.e&&!S.canEdit))return false;
   if(x.run()===false)return false;
