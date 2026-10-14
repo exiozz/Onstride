@@ -384,10 +384,11 @@ function vClient(c,by){
   h+='<div class="stats"><div class="stat"><span>Projets</span><b>'+s.ps.length+'</b></div><div class="stat"><span>Montant total</span><b>'+eur(s.amount)+'</b></div><div class="stat"><span>Encaissé</span><b>'+eur(s.paid)+'</b></div><div class="stat'+(s.rest>0?' bad':'')+'"><span>Reste à encaisser</span><b>'+eur(s.rest)+'</b></div></div>';
   h+='<section class="sect"><h2><label for="cf-notes-'+id+'">Notes</label></h2><textarea class="area" id="cf-notes-'+id+'" data-draft data-change="cf" data-f="notes" data-id="'+id+'" placeholder="Besoins, tarifs convenus, interlocuteurs, historique…">'+esc(c.notes||'')+'</textarea></section>';
   h+=qForClient(c);
+  h+=clientGuessHtml(c);
   h+=clientTasksHtml(c,by);
   h+='<section class="sect"><h2>Projets de ce client</h2>';
-  h+='<div class="qadd"><label class="sr" for="ncp">Nouveau projet pour ce client</label>'+ic('plus')+'<input id="ncp" data-draft data-add="cproject" data-client="'+id+'" placeholder="Nouveau projet pour ce client" autocomplete="off"></div>';
-  h+=s.ps.length?'<div class="cards">'+s.ps.map(function(p){return pcard(p,by);}).join('')+'</div>':'<p class="hint">Aucun projet relié. Crée-en un ci-dessus, ou choisis ce client dans les détails d’un projet.</p>';
+  h+='<div class="qadd"><label class="sr" for="ncp">Nouveau projet pour ce client</label>'+ic('plus')+'<input id="ncp" data-draft data-add="cproject" data-client="'+id+'" placeholder="Nouveau projet pour ce client" autocomplete="off"></div>'+linkProjectSel(c);
+  h+=s.ps.length?'<div class="cards">'+s.ps.map(function(p){return pcard(p,by);}).join('')+'</div>':'<p class="hint">Aucun projet relié. Crée-en un, ou relie un projet existant avec le menu ci-dessus.</p>';
   h+='</section><div class="row-btns">'+(S.confirm==='k:'+c.id?'<span class="cnt">Supprimer ce client ? Ses projets sont conservés.</span><button class="btn danger" data-act="del-client" data-id="'+id+'">Supprimer</button><button class="btn" data-act="cancel">Annuler</button>':'<button class="btn quiet" data-act="del-client" data-id="'+id+'">'+ic('trash')+'Supprimer le client</button>')+'</div>';
   return h;
 }

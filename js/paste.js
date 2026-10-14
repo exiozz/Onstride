@@ -97,6 +97,7 @@ function pasteClick(act,id,b){
     if(!S.db||!S.canEdit||(cid?!cl:(!e||!canW(e))))return true;
     closeOverlays();S.paste=cl?{cid:cl.id,step:1,src:'',bio:!(cl.notes||'').trim()}:{pid:e.p.id,step:1,src:'',bio:!(e.p.desc||'').trim()};S.focus='pst-src';render();return true;
   }
+  if(act==='link-p'||act==='link-t'||act==='link-all')return linkClick(act,id,b);
   if(!S.paste||act.indexOf('paste-')!==0)return false;
   if(act==='paste-parse'){
     var src=pasteVal('pst-src'); S.paste.src=src;
@@ -157,6 +158,8 @@ function clientProp(t){
   return prop(ic('users')+'Client',selH('mcl-'+esc(t.id),'tclient',esc(t.id),o,taskClient(t)?t.clientId:''),'mcl-'+esc(t.id));
 }
 function clientTaskChange(k,id,v){
+  if(k==='clinkp'){if(v&&S.canEdit){linkProject(v,id);toast('Projet relié au client.');}render();return true;}
+  if(k==='clinkt'){if(v&&S.canEdit){linkTask(v,id);toast('Tâche reliée au client.');}render();return true;}
   if(k!=='tclient')return false;
   var t=taskById(id); if(!t||t.projectId||!S.canEdit)return true;
   var c=v?S.clients.find(function(x){return x.id===v;}):null;
@@ -168,9 +171,54 @@ function clientTasksHtml(c,by){
   var todo=ts.filter(function(t){return !isDone(t,null);}).sort(cmpPos), done=ts.filter(function(t){return isDone(t,null);});
   var h='<section class="sect"><h2>Tâches de ce client'+(ts.length?' <span class="cnt">'+todo.length+'</span>':'')+'<span class="grow"></span>'
     +(S.canEdit?'<button class="btn sm" data-act="paste-open" data-client="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Coller un message client</button>':'')+'</h2>';
-  if(S.canEdit)h+='<div class="qadd"><label class="sr" for="nct">Nouvelle tâche pour ce client</label>'+ic('plus')+'<input id="nct" data-draft data-add="ctask" data-client="'+id+'" placeholder="Nouvelle tâche pour ce client, puis Entrée" autocomplete="off"></div>';
+  if(S.canEdit)h+='<div class="qadd"><label class="sr" for="nct">Nouvelle tâche pour ce client</label>'+ic('plus')+'<input id="nct" data-draft data-add="ctask" data-client="'+id+'" placeholder="Nouvelle tâche pour ce client, puis Entrée" autocomplete="off"></div>'+linkTaskSel(c);
   if(todo.length)h+='<ul class="tlist panel">'+todo.map(function(t){return taskRow(t,by);}).join('')+'</ul>';
   else h+='<p class="hint">'+(done.length?'Tout est fait pour ce client.':'Aucune tâche pour ce client. Ajoute-en une ci-dessus : elle n’a pas besoin de projet et apparaît aussi dans ton Bazar.')+'</p>';
   if(done.length)h+='<details class="cdone"><summary>'+pl(done.length,'tâche terminée','tâches terminées')+'</summary><ul class="tlist panel">'+done.slice(0,30).map(function(t){return taskRow(t,by);}).join('')+'</ul></details>';
   return h+'</section>';
+}
+
+/* ---------- relier à un client ce qui existe déjà ---------- */
+function clientNames(c){return [c.name,c.company].map(function(x){return norm(String(x||'').trim());}).filter(function(x){return x.length>=3;});}
+function hasName(txt,names){var s=norm(txt);return names.some(function(n){return s.indexOf(n)>=0;});}
+/* projets et tâches du Bazar pas encore reliés, où le nom du client apparaît (responsables, assigné à, titre…) */
+function clientGuess(c){
+  var ns=clientNames(c); if(!ns.length)return {ps:[],ts:[]};
+  var ps=S.projects.filter(function(p){var cid=metaOf(p.id).clientId;return !cid&&p.status!=='archived'&&hasName([p.name,p.desc,peopleOf(p).join(' ')].join(' '),ns);});
+  var ts=S.tasks.filter(function(t){return !t.projectId&&!t.clientId&&!t.done&&hasName([t.title,t.notes,whoList(t).join(' ')].join(' '),ns);});
+  return {ps:ps,ts:ts};
+}
+function clientGuessHtml(c){
+  if(!S.canEdit)return '';
+  var g=clientGuess(c), id=esc(c.id); if(!g.ps.length&&!g.ts.length)return '';
+  var h='<section class="note guess"><p><strong>'+tf('Le nom « {0} » apparaît ici, mais ce n’est pas encore relié à ce client :',esc(c.name))+'</strong></p><ul>';
+  g.ps.forEach(function(p){h+='<li>'+ic('folder')+'<span class="grow">'+esc(p.name)+' <span class="cnt">Projet</span></span><button class="btn sm" data-act="link-p" data-id="'+esc(p.id)+'" data-client="'+id+'">Relier</button></li>';});
+  g.ts.forEach(function(t){h+='<li>'+ic('box')+'<span class="grow">'+esc(t.title)+' <span class="cnt">Tâche du Bazar</span></span><button class="btn sm" data-act="link-t" data-id="'+esc(t.id)+'" data-client="'+id+'">Relier</button></li>';});
+  h+='</ul>'+(g.ps.length+g.ts.length>1?'<div class="row-btns"><button class="btn primary sm" data-act="link-all" data-client="'+id+'">Tout relier</button></div>':'')+'</section>';
+  return h;
+}
+function linkProjectSel(c){
+  if(!S.canEdit)return '';
+  var o={'':T('Relier un projet existant…')}, n=0;
+  S.projects.forEach(function(p){if(metaOf(p.id).clientId!==c.id&&p.status!=='archived'){o[p.id]=p.name+(metaOf(p.id).clientId?' '+T('(déjà relié à un autre client)'):'');n++;}});
+  return n?'<div class="linkrow">'+selH('lkp-'+esc(c.id),'clinkp',esc(c.id),o,'','in sm',' aria-label="Relier un projet existant"')+'</div>':'';
+}
+function linkTaskSel(c){
+  if(!S.canEdit)return '';
+  var o={'':T('Relier une tâche du Bazar…')}, n=0;
+  S.tasks.forEach(function(t){if(!t.projectId&&!t.done&&t.clientId!==c.id){o[t.id]=t.title;n++;}});
+  return n?'<div class="linkrow">'+selH('lkt-'+esc(c.id),'clinkt',esc(c.id),o,'','in sm',' aria-label="Relier une tâche du Bazar"')+'</div>':'';
+}
+function linkTask(tid,cid){var t=taskById(tid), c=S.clients.find(function(x){return x.id===cid;});if(!t||t.projectId||!c)return;run(function(){return tdoc(tid).update({clientId:cid,act:actOf(t,tf('Client : {0}',c.name))});});}
+function linkProject(pid,cid){if(projById(pid)&&S.clients.some(function(x){return x.id===cid;}))setMeta(pid,{clientId:cid});}
+function linkClick(act,id,b){
+  var cid=b&&b.dataset.client; if(!S.canEdit||!cid)return true;
+  if(act==='link-p'){linkProject(id,cid);toast('Projet relié au client.');}
+  else if(act==='link-t'){linkTask(id,cid);toast('Tâche reliée au client.');}
+  else if(act==='link-all'){
+    var c=S.clients.find(function(x){return x.id===cid;}); if(!c)return true;
+    var g=clientGuess(c); g.ps.forEach(function(p){linkProject(p.id,cid);}); g.ts.forEach(function(t){linkTask(t.id,cid);});
+    toast(tf('{0} relié(s) au client.',g.ps.length+g.ts.length));
+  }
+  render();return true;
 }

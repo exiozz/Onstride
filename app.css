@@ -479,6 +479,13 @@ textarea.mtitle:focus{border-color:var(--accent);outline:none;background:var(--b
 .pst-f .rq-l .ic{width:14px;height:14px}
 .pst-f>label .cnt{margin-left:auto;font-weight:500;color:var(--muted)}
 .pst-f .area{background:var(--bg)}
+.linkrow{margin:8px 0 10px}
+.linkrow select.in.sm{width:100%;max-width:440px;display:block}
+.note.guess{display:block;margin:4px 0 14px}
+.note.guess ul{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.note.guess li{display:flex;align-items:center;gap:8px}
+.note.guess li .ic{width:15px;height:15px;color:var(--muted)}
+.note.guess .row-btns{margin-top:10px}
 .cdone{margin-top:10px}
 .cdone summary{cursor:pointer;color:var(--muted);font-size:13px;padding:4px 0}
 .cdone .tlist{margin-top:6px}
