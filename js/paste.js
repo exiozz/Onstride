@@ -67,7 +67,7 @@ function pasteTitle(r){
 
 /* ---------- fenêtre ---------- */
 function pasteHtml(by){
-  var e=by[S.paste.pid]; if(!e||!canW(e)){S.paste=null;return '';}
+  var tg=pasteTarget(); if(!tg){S.paste=null;return '';}
   var P=S.paste, h='<div class="ov top" data-act="ov-bg"><div class="rep paste" role="dialog" aria-labelledby="pst-t"><header><h2 id="pst-t">'+(P.step===2?'Vérifie le rangement':'Coller un message client')+'</h2><button class="ib" data-act="ov-close" aria-label="Fermer">'+ic('x')+'</button></header>';
   if(P.step!==2){
     h+='<p class="hint">Colle le message tel que le client te l’a envoyé. L’appli trie toute seule ce qu’il faut rajouter, modifier ou supprimer, et met le reste (contexte, légende, questions) dans la description.</p>'
@@ -83,7 +83,7 @@ function pasteHtml(by){
       var c=CKREQ[k];
       h+='<div class="pst-f rq-g rq-'+k+'"><label for="pst-'+k+'"><span class="rq-l">'+ic(c.ic)+c.n+'</span><span class="cnt">'+pl(d[k].length,'demande','demandes')+'</span></label><textarea class="area sm" id="pst-'+k+'" data-draft rows="'+rows(d[k].join('\n'),2,14)+'">'+esc(d[k].join('\n'))+'</textarea></div>';
     });
-    h+='<label class="qchk"><input type="checkbox" id="pst-bio"'+(P.bio?' checked':'')+'> Ajouter aussi le contexte à la description du projet</label>'
+    h+='<label class="qchk"><input type="checkbox" id="pst-bio"'+(P.bio?' checked':'')+'> '+(tg.c?'Ajouter aussi le contexte aux notes du client':'Ajouter aussi le contexte à la description du projet')+'</label>'
       +'<footer><button class="btn quiet" data-act="paste-back">'+ic('left')+'Retour</button><span class="grow"></span><button class="btn primary" data-act="paste-ok">'+ic('plus')+'Créer la tâche</button></footer>';
   }
   return h+'</div></div>';
@@ -93,8 +93,9 @@ function pasteLines(id){return pasteVal(id).split('\n').map(pasteClean).filter(B
 
 function pasteClick(act,id,b){
   if(act==='paste-open'){
-    var e=index()[id]; if(!e||!canW(e)||!S.db)return true;
-    closeOverlays();S.paste={pid:e.p.id,step:1,src:'',bio:!(e.p.desc||'').trim()};S.focus='pst-src';render();return true;
+    var cid=b&&b.dataset.client, cl=cid?S.clients.find(function(x){return x.id===cid;}):null, e=cid?null:index()[id];
+    if(!S.db||!S.canEdit||(cid?!cl:(!e||!canW(e))))return true;
+    closeOverlays();S.paste=cl?{cid:cl.id,step:1,src:'',bio:!(cl.notes||'').trim()}:{pid:e.p.id,step:1,src:'',bio:!(e.p.desc||'').trim()};S.focus='pst-src';render();return true;
   }
   if(!S.paste||act.indexOf('paste-')!==0)return false;
   if(act==='paste-parse'){
@@ -111,22 +112,31 @@ function pasteClick(act,id,b){
   }
   if(act==='paste-ok'){
     pasteKeep();
-    var P=S.paste, d=P.d, pe=index()[P.pid];
-    if(!pe||!canW(pe)){closeOverlays();render();return true;}
+    var P=S.paste, d=P.d, tg=pasteTarget();
+    if(!tg){closeOverlays();render();return true;}
     var check=[];
     CKREQ_ORDER.forEach(function(k){d[k].forEach(function(t){check.push({id:rnd(),t:t,d:false,k:k});});});
     if(!d.title.trim()&&!check.length){toast('Rien à créer : le message est vide.',{bad:true});return true;}
     var title=d.title.trim()||unmark(tf('Demandes du client · {0}',fmtDate(todayStr())));
-    addTask(pe.p.id,title,pe.cols[0].id,{notes:d.notes.trim(),check:check});
+    var extra={notes:d.notes.trim(),check:check};
+    if(tg.c)addInbox(title,Object.assign(extra,{clientId:tg.c.id}));
+    else addTask(tg.e.p.id,title,tg.e.cols[0].id,extra);
     if(P.bio&&d.notes.trim()){
-      var cur=(pe.p.desc||'').trim(), nd=cur?cur+'\n\n'+d.notes.trim():d.notes.trim();
-      run(function(){return pdoc(pe.p.id).update({desc:nd});});
+      var cur=((tg.c?tg.c.notes:tg.e.p.desc)||'').trim(), nd=cur?cur+'\n\n'+d.notes.trim():d.notes.trim();
+      if(tg.c)run(function(){return cdoc(tg.c.id).update({notes:nd});});
+      else run(function(){return pdoc(tg.e.p.id).update({desc:nd});});
     }
-    toast(tf('Rangé : {0} dans « {1} ».',pl(check.length,'demande','demandes'),pe.p.name));
+    toast(tf('Rangé : {0} dans « {1} ».',pl(check.length,'demande','demandes'),tg.c?tg.c.name:tg.e.p.name));
     ['pst-title','pst-notes','pst-add','pst-mod','pst-del','pst-src'].forEach(function(k){delete S.dirty[k];});
     S.paste=null;render();return true;
   }
   return true;
+}
+/* où va la tâche : un projet (e) ou un client (c, tâche du Bazar rattachée au client) */
+function pasteTarget(){
+  var P=S.paste; if(!P||!S.canEdit)return null;
+  if(P.cid){var c=S.clients.find(function(x){return x.id===P.cid;});return c?{c:c}:null;}
+  var e=index()[P.pid];return e&&canW(e)?{e:e}:null;
 }
 /* garde ce qui a été corrigé à la main avant de changer d'étape */
 function pasteKeep(){
@@ -134,4 +144,33 @@ function pasteKeep(){
   P.d.title=pasteVal('pst-title');P.d.notes=pasteVal('pst-notes');
   CKREQ_ORDER.forEach(function(k){P.d[k]=pasteLines('pst-'+k);});
   var bx=document.getElementById('pst-bio');if(bx)P.bio=bx.checked;
+}
+
+/* ---------- tâches rattachées directement à un client (sans projet) ---------- */
+function taskClient(t){
+  if(!t||t.projectId||!t.clientId)return null;
+  return S.clients.find(function(c){return c.id===t.clientId;})||null;
+}
+function clientProp(t){
+  if(t.projectId||!S.clients.length)return '';
+  var o={'':T('Aucun')}; S.clients.forEach(function(c){o[c.id]=c.name;});
+  return prop(ic('users')+'Client',selH('mcl-'+esc(t.id),'tclient',esc(t.id),o,taskClient(t)?t.clientId:''),'mcl-'+esc(t.id));
+}
+function clientTaskChange(k,id,v){
+  if(k!=='tclient')return false;
+  var t=taskById(id); if(!t||t.projectId||!S.canEdit)return true;
+  var c=v?S.clients.find(function(x){return x.id===v;}):null;
+  run(function(){return tdoc(id).update({clientId:c?c.id:'',act:actOf(t,c?tf('Client : {0}',c.name):'Plus de client')});});
+  return true;
+}
+function clientTasksHtml(c,by){
+  var id=esc(c.id), ts=S.tasks.filter(function(t){return !t.projectId&&t.clientId===c.id;});
+  var todo=ts.filter(function(t){return !isDone(t,null);}).sort(cmpPos), done=ts.filter(function(t){return isDone(t,null);});
+  var h='<section class="sect"><h2>Tâches de ce client'+(ts.length?' <span class="cnt">'+todo.length+'</span>':'')+'<span class="grow"></span>'
+    +(S.canEdit?'<button class="btn sm" data-act="paste-open" data-client="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Coller un message client</button>':'')+'</h2>';
+  if(S.canEdit)h+='<div class="qadd"><label class="sr" for="nct">Nouvelle tâche pour ce client</label>'+ic('plus')+'<input id="nct" data-draft data-add="ctask" data-client="'+id+'" placeholder="Nouvelle tâche pour ce client, puis Entrée" autocomplete="off"></div>';
+  if(todo.length)h+='<ul class="tlist panel">'+todo.map(function(t){return taskRow(t,by);}).join('')+'</ul>';
+  else h+='<p class="hint">'+(done.length?'Tout est fait pour ce client.':'Aucune tâche pour ce client. Ajoute-en une ci-dessus : elle n’a pas besoin de projet et apparaît aussi dans ton Bazar.')+'</p>';
+  if(done.length)h+='<details class="cdone"><summary>'+pl(done.length,'tâche terminée','tâches terminées')+'</summary><ul class="tlist panel">'+done.slice(0,30).map(function(t){return taskRow(t,by);}).join('')+'</ul></details>';
+  return h+'</section>';
 }
