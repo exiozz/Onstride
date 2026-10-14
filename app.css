@@ -469,6 +469,16 @@ textarea.mtitle:focus{border-color:var(--accent);outline:none;background:var(--b
 .rq-add{--rqc:var(--done)}
 .rq-mod{--rqc:var(--warn)}
 .rq-del{--rqc:var(--danger)}
+.paste{overflow:auto}
+.paste .rep-x{min-height:220px}
+.pst-f{display:flex;flex-direction:column;gap:6px}
+.pst-f>label{display:flex;align-items:center;gap:7px;font:600 13px/1.2 var(--f-body);color:var(--muted)}
+.pst-f.rq-g{margin-top:0}
+.pst-f.rq-g>label{color:var(--rqc)}
+.pst-f .rq-l{display:flex;gap:7px;align-items:center}
+.pst-f .rq-l .ic{width:14px;height:14px}
+.pst-f>label .cnt{margin-left:auto;font-weight:500;color:var(--muted)}
+.pst-f .area{background:var(--bg)}
 .cms{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:8px}
 .cm{display:flex;gap:8px;align-items:flex-start;padding:9px 11px;border-radius:10px;background:var(--well)}
 .cm p{flex:1;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}

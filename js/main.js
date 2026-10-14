@@ -180,7 +180,7 @@ root.addEventListener('click',function(ev){
   if(act==='ov-bg'){if(ev.target===b){closeOverlays();render();}return;}
   if(act==='bg'){closeTask();render();return;}
   var inOverlay=!!b.closest('#overlay');
-  if(inOverlay&&act!=='qa-ok'&&act!=='ctx-prio'&&act!=='photo-nav')closeOverlays();
+  if(inOverlay&&act.indexOf('paste-')!==0&&act!=='qa-ok'&&act!=='ctx-prio'&&act!=='photo-nav')closeOverlays();
   if(['del-project','coldel','spdel','del-client','demo-del'].indexOf(act)<0)S.confirm=null;
   if(['colmenu','colmove','coldone','coldel'].indexOf(act)<0)S.menu=null;
   if(['spmenu','spdel','spren'].indexOf(act)<0)S.smenu=null;
