@@ -109,7 +109,7 @@ function repeatTask(t,e){
   d.due=due;d.pos=Date.now();d.createdAt=Date.now();d.doneAt=null;
   d.act=[{t:'Carte récurrente créée',at:Date.now()}];
   delete d.photos;delete d.files;delete d.log;
-  if(d.check)d.check=d.check.map(function(i){return {id:rnd(),t:i.t,d:false};});
+  if(d.check)d.check=d.check.map(function(i){var o={id:rnd(),t:i.t,d:false};if(i.k)o.k=i.k;return o;});
   if(e)d.columnId=e.cols[0].id; else d.done=false;
   var ref=S.db.collection((t._priv?PRIV:'')+'tasks').doc();
   run(function(){return ref.set(d);});
@@ -155,7 +155,7 @@ function dupProject(e){
     var tref=S.db.collection(realm(p.id)+'tasks').doc(), d=clean(t); map[t.id]=tref.id;
     d.projectId=ref.id;d.columnId=first;d.pos=now+i;d.createdAt=now;d.doneAt=null;d.due='';
     d.act=[{t:'Carte créée',at:now}];delete d.photos;delete d.files;delete d.log;
-    if(d.check)d.check=d.check.map(function(c){return {id:rnd(),t:c.t,d:false};});
+    if(d.check)d.check=d.check.map(function(c){var o={id:rnd(),t:c.t,d:false};if(c.k)o.k=c.k;return o;});
     return {ref:tref,d:d};
   });
   if(doc.wb){

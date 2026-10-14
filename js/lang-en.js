@@ -151,6 +151,7 @@ I18N.add('en',{
 'Dupliquer':'Duplicate','Titre':'Title','Bazar (pas encore rangée)':'Bazaar (not filed yet)','Projet':'Project','Assigné à':'Assigned to','Personne':'Person',
 'Supprimer le label':'Delete the label','Gérer':'Manage','+ Créer un label':'+ Create a label','Nom du label':'Label name','Couleur du label':'Label colour',
 'Détails, liens, idées…':'Details, links, ideas…','Pas de description.':'No description.','Décocher':'Uncheck','Cocher':'Check',
+'Demandes du client':'Client requests','À rajouter':'To add','À modifier':'To change','À supprimer':'To remove','Ce que le client veut ajouter, puis Entrée':'What the client wants added, then Enter','Ce que le client veut changer, puis Entrée':'What the client wants changed, then Enter','Ce que le client veut retirer, puis Entrée':'What the client wants removed, then Enter','Tout est rajouté':'Everything added','Tout est modifié':'Everything changed','Tout est supprimé':'Everything removed',
 'Élément de checklist':'Checklist item','Supprimer l’élément':'Delete the item','Ajouter un élément, puis Entrée':'Add an item, then Enter','Nouvel élément':'New item',
 'Supprimer le commentaire':'Delete the comment','Écrire un commentaire, puis Entrée':'Write a comment, then Enter','Nouveau commentaire':'New comment','Activité':'Activity',
 
