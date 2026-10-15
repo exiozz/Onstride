@@ -504,6 +504,10 @@ textarea.mtitle:focus{border-color:var(--accent);outline:none;background:var(--b
 .stxlist{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:6px}
 .stxlist li{display:flex;align-items:center;gap:8px}
 .stxlist .in.sm{flex:1;min-width:0}
+.phd-act{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.phd-act>.btn{margin-top:6px}
+.pst-dest{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pst-dest .pst-f>label .ic{width:14px;height:14px}
 .cdone{margin-top:10px}
 .cdone summary{cursor:pointer;color:var(--muted);font-size:13px;padding:4px 0}
 .cdone .tlist{margin-top:6px}
