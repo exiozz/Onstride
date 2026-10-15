@@ -23,11 +23,12 @@ function renderPanel(by){
   var el=document.getElementById('panel');
   var t=S.task?taskById(S.task):null;
   if(!t){el.innerHTML='';el._k=null;document.body.classList.remove('has-panel');return;}
-  document.body.classList.add('has-panel');
+  document.body.classList.add('has-panel');if(typeof pwApply==='function')pwApply();
   var e=by[t.projectId]||null, ed=canW(e), id=esc(t.id), p=e?e.p:null, sel=t.labels||[], ls=p?(p.labels||[]):[], pr=prioOf(t), done=isDone(t,e);
-  var h='<div class="scrim" data-act="bg"></div><aside class="tpanel" id="dlg" role="dialog" aria-labelledby="mt-'+id+'" tabindex="-1"'+(p?' style="--c:'+hue(p)+'"':'')+'>';
+  var h='<div class="scrim" data-act="bg"></div><aside class="tpanel" id="dlg" role="dialog" aria-labelledby="mt-'+id+'" tabindex="-1"'+(p?' style="--c:'+hue(p)+'"':'')+'><div class="tp-resize" role="separator" aria-orientation="vertical" aria-label="Redimensionner le panneau" title="Tirer pour élargir · double-clic pour revenir"></div>';
   h+='<header class="tp-h"><span class="crumb2">'+(p?'<span class="picon">'+picon(p)+'</span><span class="nm">'+esc(p.name)+'</span><span class="cnt">/ '+esc(colName(e,t._col))+'</span>':ic('box')+'<span class="nm">Bazar</span>')+'</span><span class="grow"></span>';
   if(ed)h+='<button class="ib" data-act="dup" data-id="'+id+'" aria-label="Dupliquer" title="Dupliquer">'+ic('copy')+'</button><button class="ib dng" data-act="del-task" data-id="'+id+'" aria-label="Supprimer" title="Supprimer">'+ic('trash')+'</button>';
+  h+='<button class="ib hide-s" data-act="pw-wide" aria-pressed="'+(PW.wide?'true':'false')+'" aria-label="'+(PW.wide?'Réduire le panneau':'Agrandir le panneau')+'" title="'+(PW.wide?'Réduire':'Agrandir')+'">'+ic(PW.wide?'shrink':'expand')+'</button>';
   h+='<button class="ib" data-act="close" aria-label="Fermer" title="Fermer (Échap)">'+ic('x')+'</button></header><div class="tp-b">';
   h+='<div class="tp-title">'+chkBtn(t,e)+(ed?'<label class="sr" for="mt-'+id+'">Titre</label><textarea class="mtitle'+(done?' struck':'')+'" id="mt-'+id+'" rows="1" data-draft data-change="ttitle" data-id="'+id+'">'+esc(t.title)+'</textarea>':'<h2 class="mtitle" id="mt-'+id+'">'+esc(t.title)+'</h2>')+'</div>';
   /* propriétés */

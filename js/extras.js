@@ -341,7 +341,7 @@ function timerHtml(t,e){
   var r=timerOn(), on=r&&r.task===t.id, ms=timeLive(t), id=esc(t.id);
   return '<section class="tp-s tm'+(on?' on':'')+'"><h4>'+ic('clock')+'Temps passé<span class="cnt">Visible par toi seul</span></h4><div class="tm-row"><span class="tm-v"'+(on?' data-tick="'+id+'"':'')+'>'+nt(on?fmtClock(ms):fmtDur(ms))+'</span>'
     +(on?'<button class="btn sm danger" data-act="timer-stop">'+ic('stop')+'Arrêter</button>':'<button class="btn sm primary" data-act="timer-start" data-id="'+id+'">'+ic('play')+'Démarrer</button>')
-    +'<span class="grow"></span><button class="btn sm quiet" data-act="timer-adj" data-id="'+id+'" data-v="-15" aria-label="Retirer 15 minutes"'+(ms<60000||on?' disabled':'')+'>−15 min</button><button class="btn sm quiet" data-act="timer-adj" data-id="'+id+'" data-v="15" aria-label="Ajouter 15 minutes"'+(on?' disabled':'')+'>+15 min</button></div></section>';
+    +'<span class="grow"></span><span class="tm-adj"><button class="btn sm quiet" data-act="timer-adj" data-id="'+id+'" data-v="-15" aria-label="Retirer 15 minutes"'+(ms<60000||on?' disabled':'')+'>−15 min</button><button class="btn sm quiet" data-act="timer-adj" data-id="'+id+'" data-v="15" aria-label="Ajouter 15 minutes"'+(on?' disabled':'')+'>+15 min</button></span></div></section>';
 }
 /* lignes ajoutées au bloc « Privé » du projet */
 function timeProps(e,m){
@@ -411,6 +411,7 @@ function reportHtml(by){
    Branchements : clics, saisie, clavier, après chaque rendu
    ===================================================================== */
 function extraClick(act,id,b){
+  if(layoutClick(act))return true;
   if(pasteClick(act,id,b))return true;
   if(stxClick(act,id,b))return true;
   if(moreClick(act,id,b))return true;

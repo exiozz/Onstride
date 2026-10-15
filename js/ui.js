@@ -22,6 +22,8 @@ var ICONS={
   sidebar:'<rect x="3" y="4" width="14" height="12" rx="2"/><path d="M8 4v12"/>',
   x:'<path d="M5 5l10 10M15 5L5 15"/>',
   check:'<path d="M4.5 10.5l3.6 3.6 7.4-8"/>',
+  expand:'<path d="M11.5 4h4.5v4.5M8.5 16H4v-4.5M16 4l-5.5 5.5M4 16l5.5-5.5"/>',
+  shrink:'<path d="M15.5 8.5H11V4M4.5 11.5H9V16M11 9l5-5M9 11l-5 5"/>',
   list:'<path d="M7.5 5.5H16M7.5 10H16M7.5 14.5H16"/><circle cx="4.2" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="4.2" cy="10" r=".9" fill="currentColor" stroke="none"/><circle cx="4.2" cy="14.5" r=".9" fill="currentColor" stroke="none"/>',
   board:'<rect x="3" y="4" width="4" height="12" rx="1"/><rect x="8" y="4" width="4" height="7.5" rx="1"/><rect x="13" y="4" width="4" height="10" rx="1"/>',
   table:'<rect x="3" y="4" width="14" height="12" rx="2"/><path d="M3 8.5h14M3 12.5h14M8 8.5V16"/>',
