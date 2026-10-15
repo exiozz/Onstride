@@ -78,10 +78,10 @@ function pasteHtml(by){
     function rows(t,min,max){var n=String(t||'').split('\n').reduce(function(a,l){return a+Math.max(1,Math.ceil(l.length/66));},0);return Math.min(max,Math.max(min,n+1));}
     h+='<p class="hint">Une demande par ligne. Corrige ce qui est mal rangé, puis crée la tâche.</p>'
       +'<div class="pst-f"><label for="pst-title">Titre de la tâche</label><input class="in" id="pst-title" data-draft value="'+esc(d.title)+'" autocomplete="off"></div>'
-      +'<div class="pst-f"><label for="pst-notes">Description</label><textarea class="area sm" id="pst-notes" data-draft rows="'+rows(d.notes,3,10)+'">'+esc(d.notes)+'</textarea></div>';
+      +'<div class="pst-f"><label for="pst-notes">Description</label><textarea class="area sm auto" id="pst-notes" data-draft rows="'+rows(d.notes,3,10)+'">'+esc(d.notes)+'</textarea></div>';
     CKREQ_ORDER.forEach(function(k){
       var c=CKREQ[k];
-      h+='<div class="pst-f rq-g rq-'+k+'"><label for="pst-'+k+'"><span class="rq-l">'+ic(c.ic)+c.n+'</span><span class="cnt">'+pl(d[k].length,'demande','demandes')+'</span></label><textarea class="area sm" id="pst-'+k+'" data-draft rows="'+rows(d[k].join('\n'),2,14)+'">'+esc(d[k].join('\n'))+'</textarea></div>';
+      h+='<div class="pst-f rq-g rq-'+k+'"><label for="pst-'+k+'"><span class="rq-l">'+ic(c.ic)+c.n+'</span><span class="cnt">'+pl(d[k].length,'demande','demandes')+'</span></label><textarea class="area sm auto" id="pst-'+k+'" data-draft rows="'+rows(d[k].join('\n'),2,14)+'">'+esc(d[k].join('\n'))+'</textarea></div>';
     });
     h+='<label class="qchk"><input type="checkbox" id="pst-bio"'+(P.bio?' checked':'')+'> '+(tg.c?'Ajouter aussi le contexte aux notes du client':'Ajouter aussi le contexte à la description du projet')+'</label>'
       +'<footer><button class="btn quiet" data-act="paste-back">'+ic('left')+'Retour</button><span class="grow"></span><button class="btn primary" data-act="paste-ok">'+ic('plus')+'Créer la tâche</button></footer>';

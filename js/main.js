@@ -11,7 +11,7 @@ function queueRender(){
   RQ=raf(function(){RQ=0;render();});
 }
 function autosize(){
-  document.querySelectorAll('textarea.mtitle,textarea.desc').forEach(function(el){el.style.height='auto';if(el.scrollHeight)el.style.height=el.scrollHeight+'px';});
+  document.querySelectorAll('textarea.mtitle,textarea.desc,textarea.auto').forEach(function(el){el.style.height='auto';if(el.scrollHeight)el.style.height=(el.scrollHeight+(el.classList.contains('auto')?2:0))+'px';});
 }
 /* pendant un rafraîchissement, les champs remplacés envoient un « change » qui n'est pas une vraie validation :
    S.painting permet de les reconnaître (voir js/extras.js et js/people.js) */
@@ -371,7 +371,7 @@ root.addEventListener('input',function(ev){
   if(el.id==='pq'){S.pq=el.value;S.pi=0;paintPal();return;}
   if(el.id==='qat'&&S.qa){S.qa.text=el.value;var qc=document.getElementById('qa-chips');if(qc)qc.innerHTML=tr(qaChips());return;}
   if(el.hasAttribute&&el.hasAttribute('data-draft'))S.dirty[el.id]=true;
-  if(el.tagName==='TEXTAREA'&&(el.classList.contains('mtitle')||el.classList.contains('desc')))autosize();
+  if(el.tagName==='TEXTAREA'&&(el.classList.contains('mtitle')||el.classList.contains('desc')||el.classList.contains('auto')))autosize();
 });
 root.addEventListener('change',function(ev){
   var el=ev.target, k=el.dataset&&el.dataset.change; if(!k)return;
