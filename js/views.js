@@ -382,7 +382,7 @@ function vClient(c,by){
   h+='<div class="props">'+f('company','Société')+f('email','E-mail','email')+f('phone','Téléphone','tel')+f('address','Adresse')+f('siret','SIRET')+prop('Statut',selH('cf-status-'+id,'cf',id,L(CST),st,'pv',' data-f="status"'),'cf-status-'+id)+'</div>'
     +(validEmail(String(c.email||'').trim())?'<div class="row-btns"><button class="btn sm" data-act="mail-new" data-id="'+esc(String(c.email).trim().toLowerCase())+'">'+ic('inbox')+'Lui écrire par Mail</button></div>':'')+'</div>';
   h+='<div class="stats"><div class="stat"><span>Projets</span><b>'+s.ps.length+'</b></div><div class="stat"><span>Montant total</span><b>'+eur(s.amount)+'</b></div><div class="stat"><span>Encaissé</span><b>'+eur(s.paid)+'</b></div><div class="stat'+(s.rest>0?' bad':'')+'"><span>Reste à encaisser</span><b>'+eur(s.rest)+'</b></div></div>';
-  h+='<section class="sect"><h2><label for="cf-notes-'+id+'">Notes</label></h2><textarea class="area" id="cf-notes-'+id+'" data-draft data-change="cf" data-f="notes" data-id="'+id+'" placeholder="Besoins, tarifs convenus, interlocuteurs, historique…">'+esc(c.notes||'')+'</textarea></section>';
+  h+='<section class="sect"><h2><label for="cf-notes-'+id+'">Notes</label></h2><textarea class="area auto big" id="cf-notes-'+id+'" data-draft data-change="cf" data-f="notes" data-id="'+id+'" placeholder="Besoins, tarifs convenus, interlocuteurs, historique…">'+esc(c.notes||'')+'</textarea></section>';
   h+=qForClient(c);
   h+=clientGuessHtml(c);
   h+=clientTasksHtml(c,by);
@@ -536,7 +536,7 @@ function vProject(e,by){
       +prop('Encaissé (€)','<input class="pv" type="number" min="0" step="1" inputmode="decimal" id="pp-'+id+'" value="'+(m.paid!=null&&m.paid!==''?esc(m.paid):'')+'" data-draft data-change="ppaid" data-id="'+id+'" placeholder="0">','pp-'+id)
       +prop('Reste','<span class="val">'+eur(amount-paid)+'</span>')
       +timeProps(e,m)
-      +'</div><label class="sr" for="pno-'+id+'">Notes privées</label><textarea class="area sm" id="pno-'+id+'" data-draft data-change="pnotes" data-id="'+id+'" placeholder="Notes privées : tarif, conditions, contacts, tout ce qui ne se partage pas.">'+esc(m.pnotes||'')+'</textarea>'+payRow(e,m)+qForProject(e)+'</section>';
+      +'</div><label class="sr" for="pno-'+id+'">Notes privées</label><textarea class="area sm auto" id="pno-'+id+'" data-draft data-change="pnotes" data-id="'+id+'" placeholder="Notes privées : tarif, conditions, contacts, tout ce qui ne se partage pas.">'+esc(m.pnotes||'')+'</textarea>'+payRow(e,m)+qForProject(e)+'</section>';
     if(S.confirm==='p:'+p.id)h+='<div class="row-btns"><span class="cnt">Supprimer ce projet et ses '+pl(e.total,'carte','cartes')+' ?</span><button class="btn danger" data-act="del-project" data-id="'+id+'">Supprimer</button><button class="btn" data-act="cancel">Annuler</button></div>';
     else h+='<div class="row-btns"><button class="btn quiet sm" data-act="dup-project" data-id="'+id+'" title="Copie les colonnes, les labels, les cartes et le tableau blanc. Les cartes repartent de la première colonne.">'+ic('copy')+'Dupliquer le projet</button><button class="btn quiet sm" data-act="del-project" data-id="'+id+'">'+ic('trash')+'Supprimer le projet</button></div>';
     }
