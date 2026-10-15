@@ -86,7 +86,7 @@ function ring(pct,size,col){
 }
 function bar(pct,col){return '<div class="bar" role="img" aria-label="'+pct+' % terminé"'+(col?' style="--c:'+col+'"':'')+'><i style="width:'+pct+'%"></i></div>';}
 function badges(t,e){
-  var h='', done=isDone(t,e), late=t.due&&!done&&t.due<todayStr(), pr=prioOf(t);
+  var h=stxChip(t,true), done=isDone(t,e), late=t.due&&!done&&t.due<todayStr(), pr=prioOf(t);
   if(pr)h+='<span class="bd p'+pr+'">'+ic('flag')+PRIO[pr]+'</span>';
   if(t.due)h+='<span class="bd due'+(late?' late':done?' ok':'')+'">'+ic('clock')+fmtDate(t.due)+'</span>';
   var ck=t.check||[];
@@ -158,7 +158,7 @@ function pcard(p,by){
     +'<span class="pc-top"><span class="pc-ic">'+picon(p)+'</span><span class="pc-name">'+esc(p.name)+'</span>'+(isFav(p)?ic('star','fav'):'')+(isShared(p)?ic('users','mut'):'')+'</span>'
     +(p.desc?'<span class="pc-desc">'+esc(p.desc)+'</span>':'')
     +'<span class="pc-prog">'+bar(e.pct,hue(p))+'<b>'+e.pct+' %</b></span>'
-    +'<span class="pc-meta">'+chip(PST[st],PSTC[st])+'<span class="cnt">'+e.done+'/'+e.total+'</span>'+(p.deadline?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(p.deadline)+'</span>':'')+(c?'<span class="bd who">'+esc(c.name)+'</span>':'')+'</span></button>';
+    +'<span class="pc-meta">'+chip(PST[st],PSTC[st])+stxChip(p)+'<span class="cnt">'+e.done+'/'+e.total+'</span>'+(p.deadline?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(p.deadline)+'</span>':'')+(c?'<span class="bd who">'+esc(c.name)+'</span>':'')+'</span></button>';
 }
 function empty(icon,title,text,cta){
   return '<div class="empty"><span class="empty-ic">'+ic(icon)+'</span><strong>'+title+'</strong><span>'+text+'</span>'+(cta||'')+'</div>';

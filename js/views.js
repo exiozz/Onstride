@@ -510,7 +510,7 @@ function vProject(e,by){
   if(ed)h+='<label class="sr" for="pd-'+id+'">Description</label><textarea class="desc" id="pd-'+id+'" rows="1" data-draft data-change="pdesc" data-id="'+id+'" placeholder="Ajoute une description (objectif, contexte…)">'+esc(p.desc||'')+'</textarea>';
   else if(p.desc)h+='<p class="desc">'+esc(p.desc)+'</p>';
   var open=(own||mgr)?S.det:true, cl=own?clientOf(p):null;
-  h+='<div class="sumrow">'+chip(PST[st],PSTC[st])+'<span class="sum-prog">'+bar(e.pct,hue(p))+'<b>'+e.pct+' %</b><span class="cnt">'+e.done+'/'+e.total+'</span></span>'
+  h+='<div class="sumrow">'+chip(PST[st],PSTC[st])+(ed?stxEditor('p',p):stxChip(p))+'<span class="sum-prog">'+bar(e.pct,hue(p))+'<b>'+e.pct+' %</b><span class="cnt">'+e.done+'/'+e.total+'</span></span>'
     +(p.deadline?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(p.deadline)+'</span>':'')
     +(own?(mbs.length?'<span class="bd shared">'+ic('users')+'Partagé · '+mbs.length+'</span>':'<span class="bd">'+ic('lock')+'Privé</span>'):'<span class="bd shared">'+ic('users')+(mgr?'Tu es chef de projet':e.rw?'Tu es éditeur':'Tu es lecteur')+'</span>')+(cl?'<span class="bd who">'+esc(cl.name)+'</span>':'')+(peopleOf(p).length?'<span class="bd ppl" title="'+esc(peopleOf(p).join(', '))+'">'+ic('user')+esc(peopleOf(p).slice(0,3).join(', '))+(peopleOf(p).length>3?' +'+(peopleOf(p).length-3):'')+'</span>':'')
     +(ed?'<button class="btn sm" data-act="paste-open" data-id="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Coller un message client</button>':'')
@@ -559,6 +559,7 @@ function vSettings(by){
     h+='<section class="panel scard"><h2>'+ic('star')+'Formule</h2><div class="srow"><span>'+PLANS[mp].n+'<small>'+(S.admin?'Admin : tout est débloqué.':mp==='free'?tf('{0} projets actifs, {1} photos et {2} fichiers par tâche.',PLANS.free.projects,PLANS.free.photos,PLANS.free.files):(pr&&pr.until?tf('Jusqu’au {0}.',fmtDay(pr.until)):'Sans date de fin.'))+'</small></span><button class="btn'+(mp==='free'?' primary':'')+'" data-act="view" data-id="plans">'+(mp==='free'?'Passer à Premium':mp==='premium'&&!S.admin?'Passer à Pro':'Voir les formules')+'</button></div></section>';
   }
   if(ed)h+='<section class="panel scard"><h2>'+ic('user')+'Profil</h2><div class="srow"><label for="st-name">Ton prénom<small>Pour le message d’accueil et « Mes tâches ».</small></label><input class="in" id="st-name" value="'+esc(myName())+'" data-draft data-change="cfgname" placeholder="Ton prénom" autocomplete="off"></div></section>';
+  if(ed)h+=stxSettings();
   h+='<section class="panel scard"><h2>'+ic('sun')+'Apparence et langue</h2>'
     +'<div class="srow"><span>Langue</span><span class="seg" role="group" aria-label="Langue">'+Object.keys(I18N.langs).map(function(k){return '<button data-act="lang" data-id="'+k+'" aria-pressed="'+(LANG===k)+'">'+nt(I18N.langs[k])+'</button>';}).join('')+'</span></div>'
     +'<div class="srow"><span>Thème</span>'+segPref('theme',[['system','Système','monitor'],['light','Clair','sun'],['dark','Sombre','moon']])+'</div>'
