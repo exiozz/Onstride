@@ -468,6 +468,7 @@ root.addEventListener('keydown',function(ev){
     var v=el.value.trim(); if(!v)return;
     el.value='';delete S.dirty[el.id];
     var kind=el.dataset.add;
+    if(stxEnter(kind,el,v))return;
     if(folderEnter(kind,el,v))return;
     if(kind==='project')addProject(v,el.dataset.space||'_');
     else if(kind==='cproject')addProject(v,'_',{priv:true,clientId:el.dataset.client,tpl:'client'});

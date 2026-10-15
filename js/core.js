@@ -630,7 +630,7 @@ function clean_keep(o){var n=JSON.parse(JSON.stringify(o));delete n._col;if(n._p
 
 /* ---------- navigation ---------- */
 function go(v){
-  S.view=v;S.task=null;S.q='';S.fl=null;S.comp=null;S.dirty={};S.sheet=null;S.ctx=null;S.menu=null;S.iconPick=false;S.confirm=null;
+  S.view=v;S.stxNew=null;S.task=null;S.q='';S.fl=null;S.comp=null;S.dirty={};S.sheet=null;S.ctx=null;S.menu=null;S.iconPick=false;S.confirm=null;
   if(v&&projById(v)){var r=LS.get('recent',[]).filter(function(x){return x!==v;});r.unshift(v);LS.set('recent',r.slice(0,8));}
   persist();
   try{history.replaceState(null,'',projById(v)?'#p='+v:location.pathname+location.search);}catch(_){}
