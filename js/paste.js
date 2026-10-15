@@ -83,7 +83,13 @@ function pasteHtml(by){
       var c=CKREQ[k];
       h+='<div class="pst-f rq-g rq-'+k+'"><label for="pst-'+k+'"><span class="rq-l">'+ic(c.ic)+c.n+'</span><span class="cnt">'+pl(d[k].length,'demande','demandes')+'</span></label><textarea class="area sm auto" id="pst-'+k+'" data-draft rows="'+rows(d[k].join('\n'),2,14)+'">'+esc(d[k].join('\n'))+'</textarea></div>';
     });
-    h+='<label class="qchk"><input type="checkbox" id="pst-bio"'+(P.bio?' checked':'')+'> '+(tg.c?'Ajouter aussi le contexte aux notes du client':'Ajouter aussi le contexte à la description du projet')+'</label>'
+    var po={'':T('Bazar (pas encore rangée)')}; rwProjects(index()).forEach(function(x){po[x.id]=x.name;});
+    var co={'':T('Aucun')}; S.clients.forEach(function(x){co[x.id]=x.name;});
+    h+='<div class="pst-dest"><div class="pst-f"><label for="pst-pid">'+ic('folder')+'Ranger dans</label>'+selH('pst-pid','pstdest','pid',po,P.pid||'','in')+'</div>'
+      +(tg.e?'':(S.clients.length?'<div class="pst-f"><label for="pst-cid">'+ic('users')+'Client</label>'+selH('pst-cid','pstdest','cid',co,P.cid||'','in')+'</div>':''))+'</div>';
+    var bioL=tg.e?'Ajouter aussi le contexte à la description du projet':tg.c?'Ajouter aussi le contexte aux notes du client':'';
+    if(bioL)h+='<label class="qchk"><input type="checkbox" id="pst-bio"'+(P.bio?' checked':'')+'> '+bioL+'</label>';
+    h+=''
       +'<footer><button class="btn quiet" data-act="paste-back">'+ic('left')+'Retour</button><span class="grow"></span><button class="btn primary" data-act="paste-ok">'+ic('plus')+'Créer la tâche</button></footer>';
   }
   return h+'</div></div>';
@@ -93,9 +99,11 @@ function pasteLines(id){return pasteVal(id).split('\n').map(pasteClean).filter(B
 
 function pasteClick(act,id,b){
   if(act==='paste-open'){
-    var cid=b&&b.dataset.client, cl=cid?S.clients.find(function(x){return x.id===cid;}):null, e=cid?null:index()[id];
-    if(!S.db||!S.canEdit||(cid?!cl:(!e||!canW(e))))return true;
-    closeOverlays();S.paste=cl?{cid:cl.id,step:1,src:'',bio:!(cl.notes||'').trim()}:{pid:e.p.id,step:1,src:'',bio:!(e.p.desc||'').trim()};S.focus='pst-src';render();return true;
+    var cid=b&&b.dataset.client, cl=cid?S.clients.find(function(x){return x.id===cid;}):null, e=(!cid&&id)?index()[id]:null;
+    if(!S.db||!S.canEdit)return true;
+    if(e&&!canW(e))e=null;
+    if(!e&&!cl&&index()[S.view]&&canW(index()[S.view]))e=index()[S.view];   /* depuis le menu « + » dans un projet */
+    closeOverlays();S.paste={pid:e?e.p.id:'',cid:cl?cl.id:'',step:1,src:'',bio:e?!(e.p.desc||'').trim():cl?!(cl.notes||'').trim():false};S.focus='pst-src';render();return true;
   }
   if(act==='link-p'||act==='link-t'||act==='link-all')return linkClick(act,id,b);
   if(!S.paste||act.indexOf('paste-')!==0)return false;
@@ -120,14 +128,14 @@ function pasteClick(act,id,b){
     if(!d.title.trim()&&!check.length){toast('Rien à créer : le message est vide.',{bad:true});return true;}
     var title=d.title.trim()||unmark(tf('Demandes du client · {0}',fmtDate(todayStr())));
     var extra={notes:d.notes.trim(),check:check};
-    if(tg.c)addInbox(title,Object.assign(extra,{clientId:tg.c.id}));
-    else addTask(tg.e.p.id,title,tg.e.cols[0].id,extra);
-    if(P.bio&&d.notes.trim()){
-      var cur=((tg.c?tg.c.notes:tg.e.p.desc)||'').trim(), nd=cur?cur+'\n\n'+d.notes.trim():d.notes.trim();
-      if(tg.c)run(function(){return cdoc(tg.c.id).update({notes:nd});});
-      else run(function(){return pdoc(tg.e.p.id).update({desc:nd});});
+    if(tg.e)addTask(tg.e.p.id,title,tg.e.cols[0].id,extra);
+    else addInbox(title,tg.c?Object.assign(extra,{clientId:tg.c.id}):extra);
+    if(P.bio&&d.notes.trim()&&(tg.e||tg.c)){
+      var cur=((tg.e?tg.e.p.desc:tg.c.notes)||'').trim(), nd=cur?cur+'\n\n'+d.notes.trim():d.notes.trim();
+      if(tg.e)run(function(){return pdoc(tg.e.p.id).update({desc:nd});});
+      else run(function(){return cdoc(tg.c.id).update({notes:nd});});
     }
-    toast(tf('Rangé : {0} dans « {1} ».',pl(check.length,'demande','demandes'),tg.c?tg.c.name:tg.e.p.name));
+    toast(tf('Rangé : {0} dans « {1} ».',pl(check.length,'demande','demandes'),tg.e?tg.e.p.name:(tg.c?tg.c.name+' · '+unmark(T('Bazar')):unmark(T('Bazar')))));
     ['pst-title','pst-notes','pst-add','pst-mod','pst-del','pst-src'].forEach(function(k){delete S.dirty[k];});
     S.paste=null;render();return true;
   }
@@ -136,8 +144,9 @@ function pasteClick(act,id,b){
 /* où va la tâche : un projet (e) ou un client (c, tâche du Bazar rattachée au client) */
 function pasteTarget(){
   var P=S.paste; if(!P||!S.canEdit)return null;
-  if(P.cid){var c=S.clients.find(function(x){return x.id===P.cid;});return c?{c:c}:null;}
-  var e=index()[P.pid];return e&&canW(e)?{e:e}:null;
+  var e=P.pid?index()[P.pid]:null; if(P.pid&&(!e||!canW(e)))e=null;
+  var c=(!e&&P.cid)?S.clients.find(function(x){return x.id===P.cid;})||null:null;
+  return {e:e,c:c};
 }
 /* garde ce qui a été corrigé à la main avant de changer d'étape */
 function pasteKeep(){
@@ -145,6 +154,8 @@ function pasteKeep(){
   P.d.title=pasteVal('pst-title');P.d.notes=pasteVal('pst-notes');
   CKREQ_ORDER.forEach(function(k){P.d[k]=pasteLines('pst-'+k);});
   var bx=document.getElementById('pst-bio');if(bx)P.bio=bx.checked;
+  var sp=document.getElementById('pst-pid');if(sp)P.pid=sp.value;
+  var sc=document.getElementById('pst-cid');if(sc)P.cid=sc.value;
 }
 
 /* ---------- tâches rattachées directement à un client (sans projet) ---------- */
@@ -170,7 +181,7 @@ function clientTasksHtml(c,by){
   var id=esc(c.id), ts=S.tasks.filter(function(t){return !t.projectId&&t.clientId===c.id;});
   var todo=ts.filter(function(t){return !isDone(t,null);}).sort(cmpPos), done=ts.filter(function(t){return isDone(t,null);});
   var h='<section class="sect"><h2>Tâches de ce client'+(ts.length?' <span class="cnt">'+todo.length+'</span>':'')+'<span class="grow"></span>'
-    +(S.canEdit?'<button class="btn sm" data-act="paste-open" data-client="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Coller un message client</button>':'')+'</h2>';
+    +(S.canEdit?'<button class="btn sm" data-act="paste-open" data-client="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Message client</button>':'')+'</h2>';
   if(S.canEdit)h+='<div class="qadd"><label class="sr" for="nct">Nouvelle tâche pour ce client</label>'+ic('plus')+'<input id="nct" data-draft data-add="ctask" data-client="'+id+'" placeholder="Nouvelle tâche pour ce client, puis Entrée" autocomplete="off"></div>'+linkTaskSel(c);
   if(todo.length)h+='<ul class="tlist panel">'+todo.map(function(t){return taskRow(t,by);}).join('')+'</ul>';
   else h+='<p class="hint">'+(done.length?'Tout est fait pour ce client.':'Aucune tâche pour ce client. Ajoute-en une ci-dessus : elle n’a pas besoin de projet et apparaît aussi dans ton Bazar.')+'</p>';
@@ -220,5 +231,15 @@ function linkClick(act,id,b){
     var g=clientGuess(c); g.ps.forEach(function(p){linkProject(p.id,cid);}); g.ts.forEach(function(t){linkTask(t.id,cid);});
     toast(tf('{0} relié(s) au client.',g.ps.length+g.ts.length));
   }
+  render();return true;
+}
+
+/* « Ranger dans » / « Client » changés dans la fenêtre */
+function pasteDestChange(k,id,v){
+  if(k!=='pstdest'||!S.paste)return false;
+  pasteKeep();
+  if(id==='pid'){S.paste.pid=v;var e=v?index()[v]:null;S.paste.bio=e?!(e.p.desc||'').trim():false;}
+  else{S.paste.cid=v;var c=v?S.clients.find(function(x){return x.id===v;}):null;S.paste.bio=c?!(c.notes||'').trim():false;}
+  ['pst-title','pst-notes','pst-add','pst-mod','pst-del'].forEach(function(x){delete S.dirty[x];});
   render();return true;
 }

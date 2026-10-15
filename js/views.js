@@ -225,7 +225,7 @@ function vInbox(by){
   var all=inboxTasks(), open=all.filter(function(t){return !t.done;}), done=all.filter(function(t){return t.done;});
   var d=dashData(by), popts={'':T('Ranger dans…')};
   rwProjects(by).forEach(function(p){popts[p.id]=p.name;});
-  var h='<header class="phd"><h1>Bazar</h1><p class="lead">Tout ce que tu notes en vrac, à ranger plus tard dans un projet. Visible par toi seul.</p></header>';
+  var h='<header class="phd phd-act"><div class="grow"><h1>Bazar</h1><p class="lead">Tout ce que tu notes en vrac, à ranger plus tard dans un projet. Visible par toi seul.</p></div>'+(S.canEdit?'<button class="btn" data-act="paste-open" data-id="" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Message client</button>':'')+'</header>';
   h+=folderBar(open);
   var fc=folderById(folderCur()), shown=folderFilter(open);
   h+='<div class="qadd"><label class="sr" for="ibx">Ajouter rapidement</label>'+ic('plus')+'<input id="ibx" data-draft data-add="inbox" placeholder="'+(fc?tf('Ajouter dans « {0} »…',esc(fc.name)):nt(T('Ajouter rapidement… ex. « Envoyer le devis demain priorité haute »')))+'" autocomplete="off"></div>';
@@ -513,7 +513,7 @@ function vProject(e,by){
   h+='<div class="sumrow">'+chip(PST[st],PSTC[st])+(ed?stxEditor('p',p):stxChip(p))+'<span class="sum-prog">'+bar(e.pct,hue(p))+'<b>'+e.pct+' %</b><span class="cnt">'+e.done+'/'+e.total+'</span></span>'
     +(p.deadline?'<span class="bd due'+(late?' late':'')+'">'+ic('clock')+fmtDate(p.deadline)+'</span>':'')
     +(own?(mbs.length?'<span class="bd shared">'+ic('users')+'Partagé · '+mbs.length+'</span>':'<span class="bd">'+ic('lock')+'Privé</span>'):'<span class="bd shared">'+ic('users')+(mgr?'Tu es chef de projet':e.rw?'Tu es éditeur':'Tu es lecteur')+'</span>')+(cl?'<span class="bd who">'+esc(cl.name)+'</span>':'')+(peopleOf(p).length?'<span class="bd ppl" title="'+esc(peopleOf(p).join(', '))+'">'+ic('user')+esc(peopleOf(p).slice(0,3).join(', '))+(peopleOf(p).length>3?' +'+(peopleOf(p).length-3):'')+'</span>':'')
-    +(ed?'<button class="btn sm" data-act="paste-open" data-id="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Coller un message client</button>':'')
+    +(ed?'<button class="btn sm" data-act="paste-open" data-id="'+id+'" title="Colle un message de ton client : les demandes sont rangées toutes seules dans une tâche">'+ic('checklist')+'Message client</button>':'')
     +(own?'<button class="btn sm" data-act="report" title="Préparer un message d’avancement pour ton client">'+ic('msg')+'Point client</button><button class="btn sm" data-act="share">'+ic('users')+'Partager</button><button class="btn sm" data-act="det" aria-expanded="'+(open?'true':'false')+'">'+ic('settings')+(open?'Masquer':'Détails')+'</button>':'')
     +(mgr?'<button class="btn sm" data-act="share">'+ic('users')+'Partager</button><button class="btn sm" data-act="det" aria-expanded="'+(open?'true':'false')+'">'+ic('settings')+(open?'Masquer':'Détails')+'</button>':'')+'</div>';
   if((own||mgr)&&open){

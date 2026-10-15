@@ -253,7 +253,7 @@ function renderOverlay(by){
       +'<footer><label class="sr" for="qap">Projet</label>'+selH('qap','qapid','',popts,S.qa.pid||'','in sm')+'<span class="grow"></span><button class="btn" data-act="ov-close">Annuler</button><button class="btn primary" data-act="qa-ok">Créer '+kbd('↵')+'</button></footer></div></div>';
   }else if(S.sheet){
     var items=[];
-    if(S.sheet==='plus')items=[['zen','','bolt','Focus : quoi faire maintenant'],['qa','','tasks','Nouvelle tâche'],['new-project','','folder','Nouveau projet'],['new-client','','users','Nouveau client'],['q-new','quote','file','Nouveau devis']];
+    if(S.sheet==='plus')items=[['zen','','bolt','Focus : quoi faire maintenant'],['qa','','tasks','Nouvelle tâche'],['paste-open','','checklist','Tâche depuis un message client'],['new-project','','folder','Nouveau projet'],['new-client','','users','Nouveau client'],['q-new','quote','file','Nouveau devis']];
     else{
       items=[['pal','','search','Rechercher']];
       if(S.canEdit)items.push(['view','tasks','tasks','Mes tâches'],['view','calendar','calendar','Calendrier'],['view','clients','users','Clients'],['view','quotes','receipt','Devis et factures']);

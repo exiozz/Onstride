@@ -469,6 +469,7 @@ function extraClick(act,id,b){
   return false;
 }
 function extraChange(k,id,v,el){
+  if(pasteDestChange(k,id,v))return true;
   if(clientTaskChange(k,id,v))return true;
   if(stxChange(k,id,v,el))return true;
   if(folderChange(k,id,v,el))return true;
