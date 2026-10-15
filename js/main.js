@@ -415,7 +415,7 @@ root.addEventListener('change',function(ev){
   }
   else if(k==='mcol'&&t){var te=index()[t.projectId]; if(te)moveTask(te,id,v,Date.now());}
   else if(k==='ckt'){
-    var mt=S.task?taskById(S.task):null; if(!mt)return; v=v.trim();
+    var mt=S.task?taskById(S.task):null; if(!mt)return; v=v.replace(/\s*\n+\s*/g,' ').trim();
     var item=el.dataset.item;
     var arr=v?(mt.check||[]).map(function(i){return i.id===item?Object.assign({},i,{t:v}):i;}):(mt.check||[]).filter(function(i){return i.id!==item;});
     run(function(){return tdoc(mt.id).update({check:arr});});
@@ -461,7 +461,7 @@ root.addEventListener('keydown',function(ev){
     if((key==='Enter'||key===' ')&&el.dataset&&(el.dataset.act==='open'||el.dataset.act==='view')&&el.tagName!=='BUTTON'){ev.preventDefault();el.click();return;}
   }
   if(key!=='Enter'||ev.isComposing)return;
-  if(el.tagName==='TEXTAREA'&&el.classList.contains('mtitle')){ev.preventDefault();el.blur();return;}
+  if(el.tagName==='TEXTAREA'&&(el.classList.contains('mtitle')||el.classList.contains('ckt'))&&!ev.shiftKey){ev.preventDefault();el.blur();return;}
   if(el.dataset&&el.dataset.add&&S.canEdit&&S.db){
     if(el.tagName==='TEXTAREA'&&ev.shiftKey)return;
     ev.preventDefault();
