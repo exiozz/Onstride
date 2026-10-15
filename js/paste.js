@@ -5,11 +5,13 @@
 
 /* ---------- lecture du message ---------- */
 var PASTE_VERBS={
-  del:/^(supprim|retir|enlev|effac|vir(er|e)\b|ôter|oter|plus\s+de\b|pas\s+de\b|sans\b)/i,
-  mod:/^(chang|modifi|remplac|d[ée]plac|bouger|corrig|refai|agrandi|r[ée]dui|r[ée]tr[ée]ci|ajust|d[ée]cal|inverser|renomm|mettre\s+[àa]\s+jour|am[ée]lior|retravaill|revoir|transform|[ée]clairci|assombri|baisser|augmenter|diminuer|rendre)/i,
-  add:/^(ajout|rajout|mett|met\b|mets\b|ins[ée]r|cr[ée]er|cr[ée]e\b|int[ée]gr|placer|pose|poser|install|faire\s+appara|pr[ée]voir|il\s+faudrait|il\s+faut|on\s+veut|on\s+voudrait|je\s+veux|je\s+voudrais)/i
+  del:/^(supprim|retir|enlev|effac|vir(er|e)\b|[ôo]ter\b|ne\s+plus\b|plus\s+besoin|il\s+ne\s+faut\s+plus|on\s+ne\s+veut\s+plus|pas\s+de\s+\w+\s+(du\s+tout|non\s+plus))/i,
+  mod:/^(chang|modifi|remplac|d[ée]plac|bouger|corrig|refai|refaire|agrandi|r[ée]dui|r[ée]tr[ée]ci|ajust|d[ée]cal|invers|renomm|mettre\s+[àa]\s+jour|am[ée]lior|retravaill|revoir|transform|[ée]clairci|assombri|baisser|augment|diminu|rendre|regroup|fusionn|unifi|rassembl|r[ée]organis|r[ée]arrang|simplifi|all[ée]g|compact|optimis|adapt|harmonis|uniformis|retouch|peaufin|affin|align|centr|recadr|redimension|accentu|att[ée]nu|ralenti|acc[ée]l[ée]r|[ée]quilibr|faire\s+en\s+sorte|c.est\s+en\s+sorte|en\s+sorte\s+qu|passer\s|mettre\s+en\s|traduir|reformul|nettoy)/i,
+  add:/^(ajout|rajout|mett|met\b|mets\b|ins[ée]r|cr[ée]er|cr[ée]e\b|int[ée]gr|placer|pose|poser|install|faire|fais\b|pr[ée]voir|d[ée]velopp|impl[ée]ment|constru|propos|g[ée]n[ée]r|ins[ée]r|il\s+faudrait|il\s+faut|on\s+veut|on\s+voudrait|je\s+veux|je\s+voudrais|j.aimerais|on\s+aimerait|un\s|une\s|des\s|du\s|nouve(au|lle|aux)|plus\s+de\s)/i
 };
-/* titres de section du client : « A RAJOUTER ! », « À modifier : », « Choses à supprimer » … */
+/* lignes de politesse / présentation : vont dans la description (ou sont ignorées) */
+var PASTE_INTRO=/^(bonjour|bonsoir|salut|hello|coucou|hey|alors|bon\b|ok\b|okay|voici|voil[àa]|comme\s+convenu|suite\s+[àa]|pour\s+info|petit\s+r[ée]cap|j.ai\s+(regard|vu|test)|on\s+a\s+(regard|vu|test))/i;
+var PASTE_BYE=/^(merci|cordialement|bonne\s+(journ[ée]e|soir[ée]e|fin)|[àa]\s+(bient[ôo]t|plus)|bisous?|bises|tchao|ciao|@\+)\b/i;
 var PASTE_HEADS=[
   ['del',/^(?:[àa]\s+|choses?\s+[àa]\s+|[ée]l[ée]ments?\s+[àa]\s+)?(supprim|retir|enlev)\w*[\s:!.]*/i],
   ['mod',/^(?:[àa]\s+|choses?\s+[àa]\s+|[ée]l[ée]ments?\s+[àa]\s+)?(modifi|chang|corrig)\w*[\s:!.]*/i],
@@ -30,24 +32,30 @@ function pasteHead(l){
   return null;
 }
 function pasteVerb(l){
-  var s=l.replace(/^(et\s+|puis\s+|aussi\s+|ensuite\s+|stp\s+|svp\s+|merci\s+de\s+|pouvez[- ]vous\s+|peux[- ]tu\s+|tu\s+peux\s+|vous\s+pouvez\s+)/i,'');
-  if(PASTE_VERBS.del.test(s))return 'del';
-  if(PASTE_VERBS.mod.test(s))return 'mod';
-  if(PASTE_VERBS.add.test(s))return 'add';
+  var s=l.replace(/^(et\s+|puis\s+|aussi\s+|ensuite\s+|enfin\s+|stp\s+|svp\s+|merci\s+de\s+|pouvez[- ]vous\s+|pourriez[- ]vous\s+|peux[- ]tu\s+|pourrais[- ]tu\s+|tu\s+peux\s+|vous\s+pouvez\s+)+/i,'');
+  /* « il faudrait changer… », « j'aimerais retirer… » : on regarde le verbe qui suit */
+  var w=s.replace(/^(il\s+faudrait|il\s+faut|faudrait|on\s+veut|on\s+voudrait|je\s+veux|je\s+voudrais|j.aimerais|on\s+aimerait|ce\s+serait\s+bien\s+de|ce\s+serait\s+top\s+de|est-ce\s+possible\s+de|possible\s+de)\s+(qu.on\s+|que\s+tu\s+|que\s+vous\s+|bien\s+|aussi\s+|encore\s+)?/i,'');
+  var k=['del','mod','add'];
+  if(w!==s){for(var i=0;i<k.length;i++)if(PASTE_VERBS[k[i]].test(w))return k[i];}
+  for(var j=0;j<k.length;j++)if(PASTE_VERBS[k[j]].test(s))return k[j];
   return '';
 }
 function parseClientMsg(txt){
-  var r={intro:[],legend:[],questions:[],other:[],add:[],mod:[],del:[]}, sec='';
+  var r={intro:[],legend:[],questions:[],add:[],mod:[],del:[]}, sec='';
   String(txt||'').replace(/\r/g,'').split('\n').forEach(function(raw){
-    var l=pasteClean(raw); if(!l||!/[a-zà-ÿ0-9]/i.test(l))return;
+    var l=pasteClean(raw); if(!l||!/[a-zà-ÿ0-9]/i.test(l)||l.length<3)return;
     var hd=pasteHead(l);
     if(hd){sec=hd.k;if(!/[a-zà-ÿ0-9]/i.test(hd.rest))return;l=pasteCap(hd.rest);}
+    if(PASTE_BYE.test(l)&&l.length<60)return;
     if(/\?\s*$/.test(l)||(/\?/.test(l)&&l.length>60)){r.questions.push(l);return;}
-    if(PASTE_COLORS.test(l)&&l.length<90){r.legend.push(l);return;}
+    if(PASTE_COLORS.test(l)&&l.length<90&&/[-–—:=]|\s\s/.test(l.slice(0,30))){r.legend.push(l);return;}
+    if(PASTE_COLORS.test(l)&&l.split(' ').length<=5){r.legend.push(l);return;}
+    /* présentation : début du message, ou ligne qui annonce la suite (« … : ») */
+    if(!hd&&(PASTE_INTRO.test(l)||(/:\s*$/.test(l)&&l.length<120))&&!pasteVerb(l.replace(PASTE_INTRO,'').replace(/^[\s,!.]+/,''))){r.intro.push(l);return;}
     var v=pasteVerb(l);
-    if(v){r[v].push(pasteCap(l));return;}
-    if(sec){r[sec].push(pasteCap(l));return;}
-    if(!r.add.length&&!r.mod.length&&!r.del.length)r.intro.push(l); else r.other.push(l);
+    /* sous un titre du client (« A RAJOUTER ! »), on suit son classement, sauf verbe clair de modification ou de suppression */
+    if(sec&&v!=='del'&&v!=='mod')v=sec;
+    r[v||'mod'].push(pasteCap(l));
   });
   return r;
 }
@@ -56,12 +64,14 @@ function pasteNotes(r){
   if(r.intro.length)out.push(r.intro.join('\n'));
   if(r.legend.length)out.push(unmark(T('Légende :'))+'\n'+r.legend.map(function(x){return '• '+x;}).join('\n'));
   if(r.questions.length)out.push(unmark(T('Questions du client :'))+'\n'+r.questions.map(function(x){return '• '+x;}).join('\n'));
-  if(r.other.length)out.push(unmark(T('Autres remarques :'))+'\n'+r.other.map(function(x){return '• '+x;}).join('\n'));
   return out.join('\n\n');
 }
 function pasteTitle(r){
-  var s=(r.intro[0]||'').replace(/^(alors|bon|bonjour|salut|hello|coucou|ok|voil[àa])\b[\s,!.]*/i,'').replace(/^(voici|voil[àa])\s+/i,'').replace(/\s*[:.!]+$/,'');
-  if(s&&s.length>4&&s.length<=70)return pasteCap(s);
+  var first=r.intro.filter(function(x){return !/^(bonjour|bonsoir|salut|hello|coucou|hey)\b[\s,!.]*$/i.test(x);})[0];
+  var s=(first||'').replace(/^(alors|bon|bonjour|bonsoir|salut|hello|coucou|ok|voil[àa])\b[\s,!.]*/i,'').replace(/^(voici|voil[àa])\s+/i,'').replace(/\s*[:.!]+$/,'');
+  if(s&&s.length>4&&s.length<=70&&!PASTE_INTRO.test(s))return pasteCap(s);
+  var all=r.add.concat(r.mod,r.del);
+  if(all.length===1&&all[0].length<=70)return all[0];
   return unmark(tf('Demandes du client · {0}',fmtDate(todayStr())));
 }
 
@@ -70,7 +80,7 @@ function pasteHtml(by){
   var tg=pasteTarget(); if(!tg){S.paste=null;return '';}
   var P=S.paste, h='<div class="ov top" data-act="ov-bg"><div class="rep paste" role="dialog" aria-labelledby="pst-t"><header><h2 id="pst-t">'+(P.step===2?'Vérifie le rangement':'Coller un message client')+'</h2><button class="ib" data-act="ov-close" aria-label="Fermer">'+ic('x')+'</button></header>';
   if(P.step!==2){
-    h+='<p class="hint">Colle le message tel que le client te l’a envoyé. L’appli trie toute seule ce qu’il faut rajouter, modifier ou supprimer, et met le reste (contexte, légende, questions) dans la description.</p>'
+    h+='<p class="hint">Colle le message tel que le client te l’a envoyé. Chaque ligne devient une demande, triée toute seule en « à rajouter », « à modifier » ou « à supprimer ». Le bonjour, la légende et les questions vont dans la description.</p>'
       +'<label class="sr" for="pst-src">Message du client</label><textarea class="area rep-x" id="pst-src" data-draft placeholder="Ex. : A RAJOUTER ! mettre plus de végétation, changer la couleur du titre, supprimer la bannière…">'+esc(P.src||'')+'</textarea>'
       +'<footer><span class="grow"></span><button class="btn" data-act="ov-close">Annuler</button><button class="btn primary" data-act="paste-parse">'+ic('bolt')+'Ranger</button></footer>';
   }else{
