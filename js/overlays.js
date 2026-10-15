@@ -14,7 +14,7 @@ function ckListH(items,ed){
     var iid=esc(i.id);
     if(!ed)return '<li class="cki"><span class="chk sm'+(i.d?' on':'')+'">'+CHECK+'</span><span class="'+(i.d?'struck':'')+'">'+esc(i.t)+'</span></li>';
     return '<li class="cki"><button class="chk sm'+(i.d?' on':'')+'" data-act="ck-toggle" data-item="'+iid+'" aria-pressed="'+(i.d?'true':'false')+'" aria-label="'+(i.d?'Décocher':'Cocher')+'">'+CHECK+'</button>'
-      +'<input class="ckt'+(i.d?' struck':'')+'" id="ck-'+iid+'" data-draft data-change="ckt" data-item="'+iid+'" value="'+esc(i.t)+'" aria-label="Élément de checklist" autocomplete="off">'
+      +'<textarea class="ckt auto'+(i.d?' struck':'')+'" id="ck-'+iid+'" rows="1" data-draft data-change="ckt" data-item="'+iid+'" aria-label="Élément de checklist">'+esc(i.t)+'</textarea>'
       +'<button class="ib xs dng" data-act="ck-del" data-item="'+iid+'" aria-label="Supprimer l’élément">'+ic('x')+'</button></li>';
   }).join('')+'</ul>';
 }

@@ -477,8 +477,11 @@ textarea.mtitle:focus{border-color:var(--accent);outline:none;background:var(--b
 .lmgr .in{max-width:170px}
 .rd{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink-2)}
 .ck{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:4px}
-.cki{display:flex;gap:10px;align-items:center}
-.ckt{flex:1;min-width:0;background:transparent;border:1px solid transparent;border-radius:7px;padding:5px 7px}
+.cki{display:flex;gap:10px;align-items:flex-start}
+.cki>.chk{margin-top:5px;flex:none}
+.cki>.ib{margin-top:3px;flex:none}
+.cki>span:last-child{flex:1;min-width:0;overflow-wrap:anywhere;padding-top:4px;line-height:1.45}
+.ckt{flex:1;min-width:0;background:transparent;border:1px solid transparent;border-radius:7px;padding:5px 7px;font:inherit;line-height:1.45;color:inherit;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;display:block}
 .ckt:hover{background:var(--well)}
 .ckt:focus{border-color:var(--accent);outline:none;background:var(--bg)}
 .rq-g{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--well);border-left:3px solid var(--rqc,var(--line))}
